@@ -1,0 +1,17 @@
+name = "archmox"
+compatibility_date = "2026-06-13"
+
+[build]
+command = ""
+output_dir = "/"
+
+[env.production]
+routes = [
+  { pattern = "archmox.org", zone_name = "archmox.org", custom_domain = true },
+  { pattern = "www.archmox.org", zone_name = "archmox.org", custom_domain = true },
+]
+
+[[redirects]]
+from = "/security.gpg"
+to = "https://raw.githubusercontent.com/archmox/.github/main/security.gpg"
+status = 302

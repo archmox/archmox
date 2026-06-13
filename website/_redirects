@@ -1,0 +1,5 @@
+# Redirect www to apex
+www.archmox.org/* https://archmox.org/:splat 301
+
+# Security GPG key redirect
+/security.gpg https://raw.githubusercontent.com/archmox/.github/main/security.gpg 302
