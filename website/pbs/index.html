@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Archmox Backup Server — Deduplicated backup for VMs and containers on Arch Linux.">
+<title>Archmox PBS — Backup Server | archmox.acreetionos.org</title>
+<link rel="canonical" href="https://pbs.archmox.acreetionos.org/">
+<style>
+:root{--am-teal:#2a9d8f;--am-orange:#f4a261;--am-bg:#0f0f0f;--am-panel:#1a1a1a;--am-box:#222;--am-border:#333;--am-text:#e0e0e0;--am-dim:#9a9a9a;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--font-mono:"Fira Code",monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--am-bg);color:var(--am-text);line-height:1.6;padding:2rem}
+a{color:var(--am-teal)}
+.container{max-width:900px;margin:0 auto}
+header{margin-bottom:3rem;text-align:center}
+header h1{font-size:2.5rem;background:linear-gradient(135deg,var(--am-teal),var(--am-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+nav{margin-top:1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+nav a{padding:0.4rem 0.8rem;border-radius:6px;color:var(--am-dim);font-size:0.9rem}
+nav a:hover{background:rgba(42,157,143,0.1);color:var(--am-teal);text-decoration:none}
+.box{background:var(--am-panel);border:1px solid var(--am-border);border-radius:12px;padding:2rem;margin-bottom:1.5rem}
+.box h2{color:var(--am-teal);margin-bottom:1rem}
+.box p{color:var(--am-dim);margin-bottom:0.8rem}
+.box ul{color:var(--am-dim);margin-left:1.5rem}
+.box li{margin-bottom:0.5rem}
+code{font-family:var(--font-mono);background:rgba(42,157,143,0.1);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.9em}
+.back{display:block;text-align:center;margin-top:2rem;padding:0.6rem 1.5rem;border:1px solid var(--am-border);border-radius:8px;color:var(--am-dim);font-size:0.9rem}
+.back:hover{text-decoration:none;border-color:var(--am-teal);color:var(--am-teal)}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Archmox Backup Server</h1>
+<p style="color:var(--am-dim)">pbs.archmox.acreetionos.org</p>
+<nav><a href="https://archmox.acreetionos.org">Main Site</a><a href="https://pve.archmox.acreetionos.org">PVE</a><a href="https://pmg.archmox.acreetionos.org">PMG</a><a href="https://docs.archmox.acreetionos.org">Docs</a><a href="https://github.com/archmox">GitHub</a></nav>
+</header>
+
+<div class="box">
+<h2>Overview</h2>
+<p><strong>Archmox Backup Server (PBS)</strong> is an enterprise-grade backup solution for VMs and containers featuring content-addressable storage, inline deduplication, and encryption. The core is written in Rust for maximum performance.</p>
+<p>PBS integrates natively with PVE and supports backing up to local storage, NFS, SMB, and S3-compatible object storage.</p>
+</div>
+
+<div class="box">
+<h2>Key Features</h2>
+<ul>
+<li><strong>Content-Addressable Storage</strong> — Data is chunked and indexed by cryptographic hash, eliminating duplicates</li>
+<li><strong>Inline Deduplication</strong> — Identical data blocks are stored once, dramatically reducing storage usage</li>
+<li><strong>Client-Side Encryption</strong> — Encrypt backups before they leave the source</li>
+<li><strong>Incremental Backups</strong> — Only changed blocks are transferred after the initial full backup</li>
+<li><strong>Scheduling &amp; Retention</strong> — Configurable backup schedules with prune policies (keep-last, keep-daily, etc.)</li>
+<li><strong>Remote Sync</strong> — Sync backups between PBS instances for off-site DR</li>
+<li><strong>Web UI &amp; REST API</strong> — Full management interface and automation API</li>
+<li><strong>Verification Jobs</strong> — Automatically verify backup integrity on a schedule</li>
+</ul>
+</div>
+
+<div class="box">
+<h2>Packages</h2>
+<ul>
+<li><code>proxmox-backup</code> — Backup server daemon and tools</li>
+<li><code>pxar</code> — High-performance archive format (PBS-specific)</li>
+<li><code>proxmox-backup-qemu</code> — QEMU integration for live VM backups</li>
+</ul>
+</div>
+
+<div class="box">
+<h2>Installation</h2>
+<p><code>sudo pacman -S archmox-pbs</code></p>
+</div>
+
+<a href="https://archmox.acreetionos.org" class="back">&larr; Back to Archmox</a>
+</div>
+</body>
+</html>

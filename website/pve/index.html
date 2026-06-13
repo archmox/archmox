@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Archmox Virtual Environment — KVM and LXC virtualization for Arch Linux.">
+<title>Archmox VE — Virtual Environment | archmox.acreetionos.org</title>
+<link rel="canonical" href="https://pve.archmox.acreetionos.org/">
+<style>
+:root{--am-teal:#2a9d8f;--am-orange:#f4a261;--am-bg:#0f0f0f;--am-panel:#1a1a1a;--am-box:#222;--am-border:#333;--am-text:#e0e0e0;--am-dim:#9a9a9a;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--font-mono:"Fira Code",monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--am-bg);color:var(--am-text);line-height:1.6;padding:2rem}
+a{color:var(--am-teal)}
+.container{max-width:900px;margin:0 auto}
+header{margin-bottom:3rem;text-align:center}
+header h1{font-size:2.5rem;background:linear-gradient(135deg,var(--am-teal),var(--am-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+nav{margin-top:1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+nav a{padding:0.4rem 0.8rem;border-radius:6px;color:var(--am-dim);font-size:0.9rem}
+nav a:hover{background:rgba(42,157,143,0.1);color:var(--am-teal);text-decoration:none}
+.box{background:var(--am-panel);border:1px solid var(--am-border);border-radius:12px;padding:2rem;margin-bottom:1.5rem}
+.box h2{color:var(--am-teal);margin-bottom:1rem}
+.box p{color:var(--am-dim);margin-bottom:0.8rem}
+.box ul{color:var(--am-dim);margin-left:1.5rem}
+.box li{margin-bottom:0.5rem}
+code{font-family:var(--font-mono);background:rgba(42,157,143,0.1);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.9em}
+.back{display:block;text-align:center;margin-top:2rem;padding:0.6rem 1.5rem;border:1px solid var(--am-border);border-radius:8px;color:var(--am-dim);font-size:0.9rem}
+.back:hover{text-decoration:none;border-color:var(--am-teal);color:var(--am-teal)}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Archmox Virtual Environment</h1>
+<p style="color:var(--am-dim)">pve.archmox.acreetionos.org</p>
+<nav><a href="https://archmox.acreetionos.org">Main Site</a><a href="https://pbs.archmox.acreetionos.org">PBS</a><a href="https://pmg.archmox.acreetionos.org">PMG</a><a href="https://docs.archmox.acreetionos.org">Docs</a><a href="https://github.com/archmox">GitHub</a></nav>
+</header>
+
+<div class="box">
+<h2>Overview</h2>
+<p><strong>Archmox Virtual Environment (PVE)</strong> is a complete virtualization platform based on KVM and LXC, ported from Proxmox VE to run natively on Arch Linux via PKGBUILDs.</p>
+<p>Manage your virtual machines and containers through a web-based interface with full clustering, live migration, and high availability.</p>
+</div>
+
+<div class="box">
+<h2>Key Features</h2>
+<ul>
+<li><strong>KVM Virtual Machines</strong> — Full hardware virtualization with UEFI, TPM, and GPU passthrough support</li>
+<li><strong>LXC Containers</strong> — Lightweight OS-level virtualization for system containers</li>
+<li><strong>Web Management UI</strong> — HTTPS-based interface for managing VMs, storage, networking, and users</li>
+<li><strong>Live Migration</strong> — Move running VMs between nodes with zero downtime</li>
+<li><strong>Snapshot &amp; Clone</strong> — Instant snapshots, linked clones, and full clones</li>
+<li><strong>Role-Based Access Control</strong> — Granular permissions for users, groups, and realms</li>
+<li><strong>Built-in Firewall</strong> — Per-VM and cluster-level firewall with IPSet support</li>
+<li><strong>Two-Factor Auth</strong> — TOTP-based 2FA for the web interface</li>
+</ul>
+</div>
+
+<div class="box">
+<h2>Packages</h2>
+<p>PVE consists of these core PKGBUILD packages:</p>
+<ul>
+<li><code>pve-manager</code> — Management daemon and web UI</li>
+<li><code>qemu-server</code> — QEMU/KVM wrapper and management</li>
+<li><code>pve-container</code> — LXC container management</li>
+<li><code>pve-cluster</code> — Corosync-based cluster filesystem</li>
+<li><code>pve-storage</code> — Storage backend (ZFS, Ceph, LVM, NFS, iSCSI)</li>
+<li><code>pve-network</code> — Software-defined networking (SDN, VXLAN, VLAN)</li>
+<li><code>pve-firewall</code> — Cluster firewall management</li>
+<li><code>pve-ha-manager</code> — High availability resource scheduling</li>
+</ul>
+</div>
+
+<div class="box">
+<h2>Installation</h2>
+<p>Archmox PVE is installed via <code>pacman</code> on an Arch Linux system:</p>
+<p><code>sudo pacman -S archmox-pve</code></p>
+<p>Or boot the Archmox ISO from <a href="https://cdn.archmox.acreetionos.org">cdn.archmox.acreetionos.org</a> for a turnkey installation.</p>
+</div>
+
+<a href="https://archmox.acreetionos.org" class="back">&larr; Back to Archmox</a>
+</div>
+</body>
+</html>

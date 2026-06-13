@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Archmox Documentation — Porting guides, API docs, and manuals.">
+<title>Archmox Docs — Documentation | archmox.acreetionos.org</title>
+<link rel="canonical" href="https://docs.archmox.acreetionos.org/">
+<style>
+:root{--am-teal:#2a9d8f;--am-orange:#f4a261;--am-bg:#0f0f0f;--am-panel:#1a1a1a;--am-box:#222;--am-border:#333;--am-text:#e0e0e0;--am-dim:#9a9a9a;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--font-mono:"Fira Code",monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--am-bg);color:var(--am-text);line-height:1.6;padding:2rem}
+a{color:var(--am-teal)}
+.container{max-width:900px;margin:0 auto}
+header{margin-bottom:3rem;text-align:center}
+header h1{font-size:2.5rem;background:linear-gradient(135deg,var(--am-teal),var(--am-orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+nav{margin-top:1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+nav a{padding:0.4rem 0.8rem;border-radius:6px;color:var(--am-dim);font-size:0.9rem}
+nav a:hover{background:rgba(42,157,143,0.1);color:var(--am-teal);text-decoration:none}
+.box{background:var(--am-panel);border:1px solid var(--am-border);border-radius:12px;padding:2rem;margin-bottom:1.5rem}
+.box h2{color:var(--am-teal);margin-bottom:1rem}
+.box p{color:var(--am-dim);margin-bottom:0.8rem}
+.box ul{color:var(--am-dim);margin-left:1.5rem}
+.box li{margin-bottom:0.5rem}
+code{font-family:var(--font-mono);background:rgba(42,157,143,0.1);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.9em}
+.back{display:block;text-align:center;margin-top:2rem;padding:0.6rem 1.5rem;border:1px solid var(--am-border);border-radius:8px;color:var(--am-dim);font-size:0.9rem}
+.back:hover{text-decoration:none;border-color:var(--am-teal);color:var(--am-teal)}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin:1.5rem 0}
+.doc-card{background:var(--am-box);border:1px solid var(--am-border);border-radius:10px;padding:1.25rem;transition:border-color 0.2s}
+.doc-card:hover{border-color:var(--am-teal)}
+.doc-card h3{margin-bottom:0.5rem;font-size:1.1rem}
+.doc-card p{font-size:0.85rem;margin:0}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Archmox Documentation</h1>
+<p style="color:var(--am-dim)">docs.archmox.acreetionos.org</p>
+<nav><a href="https://archmox.acreetionos.org">Main Site</a><a href="https://pve.archmox.acreetionos.org">PVE</a><a href="https://pbs.archmox.acreetionos.org">PBS</a><a href="https://pmg.archmox.acreetionos.org">PMG</a><a href="https://github.com/archmox">GitHub</a></nav>
+</header>
+
+<div class="box">
+<h2>Documentation Hub</h2>
+<p>Welcome to the Archmox documentation hub. Here you'll find porting guides, API references, architecture docs, and manuals for all Archmox components.</p>
+<p>Documentation is being actively developed as the port progresses. Check the <a href="https://github.com/archmox">GitHub repositories</a> for the latest updates.</p>
+</div>
+
+<div class="doc-grid">
+<div class="doc-card">
+<h3>&#128214; Porting Guide</h3>
+<p>How to port Proxmox packages from Debian to Arch Linux PKGBUILDs. Covers Perl module paths, systemd services, and archiso integration.</p>
+</div>
+<div class="doc-card">
+<h3>&#9881; PVE Architecture</h3>
+<p>Architecture overview of the PVE stack: cluster communication, storage backend abstraction, and VM lifecycle management.</p>
+</div>
+<div class="doc-card">
+<h3>&#128230; PBS Internals</h3>
+<p>Content-addressable storage design, chunking strategy, data deduplication, and the pxar archive format.</p>
+</div>
+<div class="doc-card">
+<h3>&#9993; PMG Configuration</h3>
+<p>Setting up SMTP proxies, SpamAssassin rules, ClamAV integration, and quarantine management.</p>
+</div>
+<div class="doc-card">
+<h3>&#128640; API Reference</h3>
+<p>REST API documentation for all Archmox components — PVE, PBS, and PMG endpoints.</p>
+</div>
+<div class="doc-card">
+<h3>&#128297; Building from Source</h3>
+<p>How to build Archmox packages from source using PKGBUILDs and the Arch Linux build system.</p>
+</div>
+</div>
+
+<a href="https://archmox.acreetionos.org" class="back">&larr; Back to Archmox</a>
+</div>
+</body>
+</html>

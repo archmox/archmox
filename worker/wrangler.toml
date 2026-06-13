@@ -1,0 +1,31 @@
+name = "archmox-api"
+main = "index.js"
+compatibility_date = "2026-06-13"
+
+# Route config: API backend for all archmox subdomains
+routes = [
+  { pattern = "archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "pve.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "pbs.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "pmg.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "docs.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "cdn.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+]
+
+# KV Namespace for newsletter subscribers & security reports
+# Create with: wrangler kv:namespace create "ARCHMOX_KV"
+# kv_namespaces = [
+#   { binding = "ARCHMOX_KV", id = "your-kv-id-here" }
+# ]
+
+[triggers]
+# Health check every 30 min
+crons = ["*/30 * * * *"]
+
+[vars]
+CONTACT_EMAIL = "security@archmox.acreetionos.org"
+FLEET_VERSION = "1.0.0"
+
+# Secrets (set via `wrangler secret put` — NOT in this file):
+#   DISCORD_WEBHOOK   — Discord webhook for contact/security reports
+#   SECURITY_WEBHOOK  — Webhook for security reports (can be same as DISCORD_WEBHOOK)
