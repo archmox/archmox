@@ -3,19 +3,16 @@ main = "index.js"
 compatibility_date = "2026-06-13"
 
 # Route config: archmox subdomains
-# Main site archmox.acreetionos.org is served by the Pages project
-# Only /api/* routes go to the Worker for the main domain
-# Subdomains (pve, pbs, pmg, docs, cdn) are served fully by the Worker
+# All subdomains are served by their respective Pages projects
+# Worker only handles API endpoints on all subdomains
 # SSL is covered by *.acretionos.org Universal SSL wildcard
 routes = [
-  # Main site — only API routes go to Worker
   { pattern = "archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
-  # Subdomains — full routing through Worker
-  { pattern = "pve.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
-  { pattern = "pbs.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
-  { pattern = "pmg.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
-  { pattern = "docs.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
-  { pattern = "cdn.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
+  { pattern = "pve.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "pbs.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "pmg.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "docs.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
+  { pattern = "cdn.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
 ]
 
 [triggers]
