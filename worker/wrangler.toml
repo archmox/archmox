@@ -15,12 +15,35 @@ routes = [
   { pattern = "pbs.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
 ]
 
+# KV for newsletter subscribers, fleet health, security reports
+kv_namespaces = [
+  { binding = "ARCHMOX_KV", id = "11afd08c9e8d4b89ab548b9af546ac9f" },
+  { binding = "FLEET_KV", id = "a31d8b1328a147c9af8784bc7a67721d" },
+]
+
+# R2 buckets for CDN (ISO hosting + binary repos)
+[[r2_buckets]]
+binding = "CDN_ISOS"
+bucket_name = "archmox-cdn-isos"
+[[r2_buckets]]
+binding = "CDN_REPOS"
+bucket_name = "archmox-cdn-repos"
+
+# D1 database for docs/contact submissions
+[[d1_databases]]
+binding = "DOCS_DB"
+database_name = "archmox-docs"
+database_id = "d6a17ae3-6e9a-4994-ac12-f690706d0c2f"
+
 [triggers]
 crons = ["*/30 * * * *"]
 
 [vars]
 CONTACT_EMAIL = "security@archmox.acreetionos.org"
 FLEET_VERSION = "1.0.0"
+SECURITY_EMAIL = "security@archmox.acreetionos.org"
+CDN_BUCKET = "archmox-cdn-isos"
+REPO_BUCKET = "archmox-cdn-repos"
 
 # Secrets (set via `wrangler secret put`):
 #   DISCORD_WEBHOOK   — Discord webhook for contact/security reports
