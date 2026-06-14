@@ -1,0 +1,26 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-corosync-pve
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Corosync cluster engine with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('BSD')
+depends=('glibc' 'libqb' 'libxml2' 'libsasl' 'lzo' 'nss')
+makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/corosync-pve"
+  ./autogen.sh
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/corosync-pve"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

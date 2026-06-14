@@ -1,0 +1,24 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-proxmox-backup-qemu
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox Backup QEMU integration - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-proxmox-backup' 'archmox-pxar' 'qemu' 'glibc' 'gcc-libs')
+makedepends=('rust' 'cargo' 'make' 'gcc' 'pkg-config')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-backup-qemu"
+  cargo build --release --frozen
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-backup-qemu"
+  cargo install --root="${pkgdir}/usr" --frozen
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

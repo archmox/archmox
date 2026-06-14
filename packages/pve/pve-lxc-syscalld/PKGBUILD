@@ -1,0 +1,24 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-lxc-syscalld
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE LXC syscall daemon - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('glibc' 'libseccomp' 'lxc')
+makedepends=('make' 'gcc' 'pkg-config' 'libseccomp')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-lxc-syscalld"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-lxc-syscalld"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

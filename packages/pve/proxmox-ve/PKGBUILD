@@ -1,0 +1,27 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-proxmox-ve
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE metapackage - installs all PVE components for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-manager' 'archmox-qemu-server' 'archmox-pve-container'
+         'archmox-pve-cluster' 'archmox-pve-storage' 'archmox-pve-network'
+         'archmox-pve-firewall' 'archmox-pve-ha-manager'
+         'archmox-pve-access-control' 'archmox-pve-guest-common'
+         'archmox-pve-http-server' 'archmox-pve-docs'
+         'archmox-pve-edk2-firmware' 'archmox-pve-xtermjs'
+         'archmox-pve-zsync' 'archmox-pve-installer'
+         'archmox-pve-lxc-syscalld' 'archmox-proxmox-ve-wallpapers')
+makedepends=()
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+  install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm644 "${srcdir}/archmox-${pkgver}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE" 2>/dev/null || \
+    echo "Proxmox VE metapackage" > "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  echo "This package is a metapackage and does not contain any files." > "${pkgdir}/usr/share/doc/${pkgname}/README"
+}

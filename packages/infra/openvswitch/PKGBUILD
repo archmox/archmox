@@ -1,0 +1,28 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-openvswitch
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Open vSwitch with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('Apache')
+depends=('glibc' 'openssl' 'libcap-ng' 'libunbound' 'libmnl'
+         'libnetfilter-conntrack' 'python' 'python-six')
+makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake'
+             'libtool' 'python')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/openvswitch"
+  ./boot.sh
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/openvswitch"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

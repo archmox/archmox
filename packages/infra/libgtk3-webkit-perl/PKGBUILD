@@ -1,0 +1,26 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-libgtk3-webkit-perl
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="GTK3 WebKit Perl bindings for Proxmox - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('perl' 'perl-gtk3' 'webkit2gtk' 'gtk3')
+makedepends=('make' 'gcc' 'pkg-config' 'perl-module-build'
+             'webkit2gtk' 'gtk3' 'cairo' 'glib2')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/libgtk3-webkit-perl"
+  perl Makefile.PL INSTALLDIRS=vendor DESTDIR="${pkgdir}"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/libgtk3-webkit-perl"
+  make install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

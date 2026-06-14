@@ -1,0 +1,29 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-container
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE LXC container management - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-pve-guest-common' 'archmox-pve-storage'
+         'archmox-pve-firewall' 'archmox-pve-access-control'
+         'lxc' 'lxcfs' 'perl' 'perl-json' 'perl-libwww'
+         'perl-net-ip' 'perl-io-socket-ssl' 'perl-xml-libxml'
+         'perl-filesys-df' 'perl-string-shellquote'
+         'perl-linux-inotify2' 'pve-lxc-syscalld')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-container"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-container"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

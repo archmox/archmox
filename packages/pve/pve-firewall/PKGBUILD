@@ -1,0 +1,29 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-firewall
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE firewall management - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-cluster'
+         'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-net-ip' 'perl-net-dns' 'perl-xml-libxml'
+         'perl-filesys-df' 'perl-string-shellquote' 'perl-linux-inotify2'
+         'iptables-nft' 'ipset' 'conntrack-tools' 'xtables-addons'
+         'nftables' 'arptables' 'ebtables')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-firewall"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-firewall"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

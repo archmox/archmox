@@ -1,0 +1,24 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-edk2-firmware
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE EDK2 UEFI firmware - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3' 'BSD')
+depends=()
+makedepends=('make' 'gcc' 'nasm' 'python' 'acpica' 'uuid')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-edk2-firmware"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-edk2-firmware"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

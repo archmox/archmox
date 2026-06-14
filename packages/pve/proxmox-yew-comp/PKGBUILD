@@ -1,0 +1,28 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-proxmox-yew-comp
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox Yew UI components (Rust/WASM frontend) - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-proxmox-rs' 'glibc' 'gcc-libs')
+makedepends=('rust' 'cargo' 'wasm-pack' 'nodejs' 'npm' 'pkg-config')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/proxmox-yew-comp"
+  cargo build --release --frozen
+  wasm-pack build --target web --release
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/proxmox-yew-comp"
+  install -Dm755 target/release/libproxmox_yew_comp.so \
+    "${pkgdir}/usr/lib/libproxmox_yew_comp.so" 2>/dev/null || true
+  install -dm755 "${pkgdir}/usr/share/proxmox-yew-comp/pkg"
+  cp -r pkg/* "${pkgdir}/usr/share/proxmox-yew-comp/pkg/"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

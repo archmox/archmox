@@ -1,0 +1,25 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-docs
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE documentation - ported for Arch Linux"
+arch=('any')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=()
+makedepends=('asciidoc' 'xmlto' 'docbook-xsl' 'libxml2' 'libxslt'
+             'dblatex' 'w3m' 'python' 'make')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-docs"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-docs"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

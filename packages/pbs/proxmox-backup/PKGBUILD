@@ -1,0 +1,38 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-proxmox-backup
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox Backup Server - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-proxmox-rs' 'archmox-pxar' 'archmox-proxmox-fuse-rs'
+         'glibc' 'gcc-libs' 'openssl' 'zlib' 'libsystemd'
+         'libsodium' 'libuuid' 'zstd' 'lz4' 'xz' 'bzip2'
+         'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-net-ip' 'perl-xml-libxml' 'perl-template-toolkit'
+         'perl-crypt-openssl-rsa' 'perl-crypt-ssleay'
+         'perl-datetime' 'perl-linux-inotify2' 'perl-filesys-df'
+         'perl-string-shellquote' 'postgresql' 'postgresql-libs'
+         'nginx' 'proxmox-archive-keyring')
+makedepends=('rust' 'cargo' 'pkg-config' 'cmake' 'make' 'gcc'
+             'protobuf' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-backup"
+  cargo build --release --frozen
+}
+
+check() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-backup"
+  cargo test --release --frozen
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-backup"
+  cargo install --root="${pkgdir}/usr" --frozen
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

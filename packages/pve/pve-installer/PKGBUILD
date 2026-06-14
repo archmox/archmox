@@ -1,0 +1,32 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-installer
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE installer - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-xml-libxml' 'perl-template-toolkit'
+         'perl-crypt-openssl-rsa' 'perl-crypt-ssleay'
+         'perl-file-slurp' 'perl-datetime'
+         'perl-linux-inotify2' 'perl-filesys-df'
+         'parted' 'gptfdisk' 'util-linux' 'lvm2' 'zfs-utils'
+         'btrfs-progs' 'e2fsprogs' 'xfsprogs' 'dosfstools'
+         'mdadm' 'dmraid' 'grub' 'efibootmgr' 'shim'
+         'pv' 'dialog' 'squashfs-tools' 'arch-install-scripts')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-installer"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-installer"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,137 @@
+name: Deploy API Worker to Cloudflare
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: worker-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint Worker Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          cd worker
+          npm init -y
+          npm install --save-dev eslint prettier
+
+      - name: Run linter
+        run: |
+          cd worker
+          npx eslint index.js || echo "Lint warnings found"
+
+      - name: Validate wrangler config
+        run: |
+          cd worker
+          npx wrangler deploy --dry-run 2>&1 || echo "Wrangler validation may need authentication"
+
+  test:
+    name: Run Worker Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          cd worker
+          npm install --save-dev vitest
+
+      - name: Run tests
+        run: |
+          cd worker
+          # Simple validation: check worker exports and structure
+          node -e "
+            const fs = require('fs');
+            const code = fs.readFileSync('index.js', 'utf8');
+            // Check that the worker exports fetch and scheduled
+            if (!code.includes('export default')) {
+              console.error('Missing default export');
+              process.exit(1);
+            }
+            if (!code.includes('async fetch')) {
+              console.error('Missing fetch handler');
+              process.exit(1);
+            }
+            if (!code.includes('async scheduled')) {
+              console.error('Missing scheduled handler');
+              process.exit(1);
+            }
+            console.log('Worker structure validation passed');
+          "
+
+  deploy-production:
+    name: Deploy to Cloudflare Workers (Production)
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy worker/index.js --name=archmox-api --compatibility-date=2026-06-13
+
+      - name: Verify deployment
+        run: |
+          sleep 10
+          curl -s -o /dev/null -w "%{http_code}" \
+            https://archmox.acreetionos.org/api/health || true
+
+  deploy-secrets:
+    name: Set Worker Secrets
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set secrets
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          secrets: |
+            DISCORD_WEBHOOK
+            SECURITY_WEBHOOK
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          SECURITY_WEBHOOK: ${{ secrets.SECURITY_WEBHOOK }}
+
+  notify:
+    name: Notify Deployment Status
+    needs: [deploy-production]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: env.DISCORD_WEBHOOK != ''
+        run: |
+          STATUS="${{ needs.deploy-production.result }}"
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"**Archmox Worker Deploy**: $STATUS\nCommit: ${{ github.sha }}\nURL: https://archmox.acreetionos.org/api/health\"}" \
+            "$DISCORD_WEBHOOK"

@@ -1,0 +1,30 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+# Contributor: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-proxmox-rs
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox Rust libraries and bindings - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('glibc' 'gcc-libs' 'openssl' 'zlib' 'libsystemd' 'libsodium' 'libuuid')
+makedepends=('rust' 'cargo' 'pkg-config' 'cmake' 'make')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/core/proxmox-rs"
+  cargo build --release --frozen
+}
+
+check() {
+  cd "${srcdir}/archmox-${pkgver}/packages/core/proxmox-rs"
+  cargo test --release --frozen
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/core/proxmox-rs"
+  cargo install --root="${pkgdir}/usr" --frozen
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

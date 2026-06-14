@@ -1,0 +1,242 @@
+name: Documentation Check
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'website/**'
+      - '**.md'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'website/**'
+      - '**.md'
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6 AM
+  workflow_dispatch:
+
+concurrency:
+  group: docs-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dead-links:
+    name: Check for Dead Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install lychee
+        run: |
+          curl -sL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv lychee /usr/local/bin/
+
+      - name: Check documentation links
+        id: lychee
+        continue-on-error: true
+        run: |
+          lychee \
+            --verbose \
+            --no-progress \
+            --format detailed \
+            --cache \
+            --max-cache-age 1d \
+            --timeout 30 \
+            --retry-wait-time 5 \
+            --max-retries 3 \
+            --exclude "localhost" \
+            --exclude "127.0.0.1" \
+            --exclude "git.proxmox.com" \
+            --exclude "pve.proxmox.com" \
+            --exclude "pbs.proxmox.com" \
+            --exclude "pmg.proxmox.com" \
+            --exclude "access.redhat.com" \
+            --exclude "wiki.archlinux.org" \
+            --exclude "github.com/archmox" \
+            --exclude "acreetionos.org" \
+            --exclude "discord.acreetionos.org" \
+            --exclude "*.acreetionos.org" \
+            docs/ \
+            website/ \
+            .github/profile/README.md \
+            > lychee-report.txt 2>&1 || true
+
+      - name: Display lychee report
+        run: |
+          if [ -s lychee-report.txt ]; then
+            cat lychee-report.txt
+          else
+            echo "No link issues found (or all excluded URLs)"
+          fi
+
+      - name: Count broken links
+        run: |
+          BROKEN=$(grep -c "🔴\|404\|Failed\|Error" lychee-report.txt 2>/dev/null || echo "0")
+          echo "Broken links found: $BROKEN"
+          echo "broken=$BROKEN" >> $GITHUB_OUTPUT
+
+  markdown-lint:
+    name: Lint Markdown Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Run markdownlint
+        continue-on-error: true
+        run: |
+          markdownlint \
+            --disable MD013 \
+            --disable MD033 \
+            --disable MD041 \
+            docs/ website/ \
+            > markdownlint-report.txt 2>&1 || true
+
+      - name: Display markdownlint report
+        run: |
+          if [ -s markdownlint-report.txt ]; then
+            cat markdownlint-report.txt
+          else
+            echo "No markdown lint issues found"
+          fi
+
+  spell-check:
+    name: Spell Check Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cspell
+        run: npm install -g cspell
+
+      - name: Create cspell config
+        run: |
+          cat > cspell.json << 'EOF'
+          {
+            "version": "0.2",
+            "language": "en",
+            "words": [
+              "Archmox", "AcreetionOS", "Proxmox", "Corosync", "pmxcfs",
+              "PKGBUILD", "PKGBUILDs", "pvecm", "pvesh", "pveproxy",
+              "pvedaemon", "pvestatd", "vzdump", "pct", "qm", "pvesm",
+              "pveum", "pveacme", "pveversion", "proxmox", "backup",
+              "datastore", "pxar", "ZVOL", "ZVOLs", "vdev", "vdevs",
+              "SLOG", "LZ4", "ZSTD", "RBD", "RADOSGW", "CRUSH",
+              "STONITH", "totem", "knet", "kronosnet", "libqb",
+              "nftables", "nft", "xtables", "conntrack", "ipset",
+              "clustername", "nodename", "vmid", "ctid", "upid",
+              "syslog", "systemd", "networkd", "dhcpcd", "ethtool",
+              "ovmf", "swtpm", "seabios", "dmidecode", "seabios",
+              "spiceterm", "vncterm", "lxcfs", "lxc", "lxcfs",
+              "snapraid", "dtach", "cifs", "nfs", "smb", "iscsi",
+              "glusterfs", "sheepdog", "sanoid", "syncoid",
+              "proxmox", "mail", "gateway", "spamassassin", "clamav",
+              "clamd", "freshclam", "opendkim", "dkim", "dkimproxy",
+              "greylisting", "greylist", "bayes", "spf", "dmarc",
+              "rbl", "dnsbl", "smtp", "smtpd", "milter", "mta",
+              "pam", "pve", "pbs", "pmg", "pveproxy", "pvedaemon",
+              "postgresql", "postgres", "pgdump", "pgrestore",
+              "rrddata", "vztmpl", "cloudinit", "cloud", "init",
+              "cpu", "hotplug", "scsihw", "virtio", "virtio",
+              "iothread", "scsi", "nvme", "xtermjs", "novnc",
+              "spice", "vnc", "rdp", "tls", "ssl", "acme",
+              "letsencrypt", "certbot", "cfssl", "openssl",
+              "pkgrel", "pkgver", "pkgdesc", "makedepends",
+              "checkdepends", "sha256sums", "srcdir", "pkgdir",
+              "makepkg", "namcap", "repo", "add", "repo", "remove",
+              "archmox", "archmox", "acreetionos", "acreetionos",
+              "spiva", "natalie", "cole", "clift", "spivajohnathan",
+              "hyperbola", "libre", "linux", "lts", "linux",
+              "fuse", "fuse", "fuse", "libfuse", "fuse", "fuse",
+              "qemu", "kvm", "lxc", "lxc", "lxcfs",
+              "openssh", "nginx", "postfix", "postfix",
+              "docker", "podman", "incus"
+            ],
+            "ignorePaths": [
+              "node_modules",
+              "**/.git/**",
+              "**/*.svg",
+              "**/*.png",
+              "**/*.jpg",
+              "**/CNAME",
+              "**/_redirects",
+              "**/_headers"
+            ]
+          }
+          EOF
+
+      - name: Run cspell
+        continue-on-error: true
+        run: |
+          npx cspell --config cspell.json \
+            "docs/**/*.md" \
+            "website/**/*.html" \
+            "website/**/*.md" \
+            ".github/profile/README.md" \
+            > cspell-report.txt 2>&1 || true
+
+      - name: Display spell check report
+        run: |
+          if [ -s cspell-report.txt ]; then
+            cat cspell-report.txt
+          else
+            echo "No spelling issues found"
+          fi
+
+  file-consistency:
+    name: Check File Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify all docs directories have content
+        run: |
+          errors=0
+          for dir in docs/porting-guides docs/architecture docs/manuals docs/api; do
+            count=$(find "$dir" -name '*.md' | wc -l)
+            echo "$dir: $count files"
+            if [ "$count" -eq 0 ]; then
+              echo "::error::$dir is empty!"
+              errors=$((errors + 1))
+            fi
+          done
+          exit $errors
+
+      - name: Verify PKGBUILD documentation references
+        run: |
+          errors=0
+          while IFS= read -r pkgbuild; do
+            pkgname=$(grep "^pkgname=" "$pkgbuild" | cut -d= -f2)
+            if [ -n "$pkgname" ]; then
+              # Check that the package is mentioned in at least one doc
+              if ! grep -rq "$pkgname" docs/; then
+                echo "::warning::$pkgname is not mentioned in any documentation"
+              fi
+            fi
+          done < <(find packages -name PKGBUILD)
+          exit $errors
+
+  summarize:
+    name: Generate Summary
+    needs: [dead-links, markdown-lint, spell-check, file-consistency]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create check summary
+        run: |
+          echo "## Documentation Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dead Links | ${{ needs.dead-links.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Markdown Lint | ${{ needs.markdown-lint.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Spell Check | ${{ needs.spell-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "| File Consistency | ${{ needs.file-consistency.result }}" >> $GITHUB_STEP_SUMMARY

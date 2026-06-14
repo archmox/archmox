@@ -1,0 +1,20 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-jslint
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE JSLint configuration - ported for Arch Linux"
+arch=('any')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('nodejs')
+makedepends=('npm')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/core/pve-jslint"
+  npm install --prefix "${pkgdir}/usr/lib/node_modules/${pkgname}" --production
+  install -Dm644 package.json "${pkgdir}/usr/lib/node_modules/${pkgname}/package.json"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

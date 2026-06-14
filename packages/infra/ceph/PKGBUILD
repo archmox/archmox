@@ -1,0 +1,39 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-ceph
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Ceph distributed storage with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('LGPL2.1' 'GPL2')
+depends=('glibc' 'gcc-libs' 'libstdc++5' 'openssl' 'libcurl'
+         'libxml2' 'libaio' 'lz4' 'snappy' 'zlib' 'zstd'
+         'bzip2' 'librdkafka' 'lua' 'leveldb' 'keyutils'
+         'libsasl' 'cryptsetup' 'python' 'python-yaml'
+         'python-rados' 'python-rbd')
+makedepends=('make' 'gcc' 'pkg-config' 'cmake' 'python'
+             'python-setuptools' 'cython' 'libnl' 'udev'
+             'cryptopp' 'nss')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/ceph"
+  mkdir -p build && cd build
+  cmake -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+    -DWITH_BABELTRACE=OFF \
+    -DWITH_LTTNG=OFF \
+    -DWITH_RDMA=OFF \
+    -DWITH_SPDK=OFF \
+    -DWITH_GSSAPI=OFF \
+    ..
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/ceph/build"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 ../LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

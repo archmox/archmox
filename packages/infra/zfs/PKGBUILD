@@ -1,0 +1,29 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-zfs
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="ZFS filesystem with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('CDDL')
+depends=('glibc' 'zlib' 'libaio' 'openssl' 'libuuid' 'python'
+         'python-setuptools' 'python-cffi' 'util-linux')
+makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake'
+             'libtool' 'python-setuptools' 'python-cffi' 'kernel-headers')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/zfs"
+  ./autogen.sh
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --with-linux=/usr/lib/modules/$(uname -r)/build
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/zfs"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

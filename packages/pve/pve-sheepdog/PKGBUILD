@@ -1,0 +1,27 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-sheepdog
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE Sheepdog distributed storage driver - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-pve-access-control'
+         'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-net-ip' 'perl-xml-libxml' 'perl-filesys-df'
+         'sheepdog')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-sheepdog"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-sheepdog"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

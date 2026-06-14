@@ -1,0 +1,28 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-dab
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Debian Appliance Builder for Proxmox - ported for Arch Linux"
+arch=('any')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-xml-libxml' 'perl-template-toolkit'
+         'perl-file-slurp' 'perl-datetime' 'perl-linux-inotify2'
+         'perl-filesys-df' 'wget' 'debootstrap' 'mmdebstrap'
+         'tar' 'xz' 'gzip' 'bzip2')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/dab"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/dab"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

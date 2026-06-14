@@ -1,0 +1,30 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-access-control
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE access control system - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-proxmox-rs'
+         'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-crypt-openssl-rsa' 'perl-crypt-ssleay'
+         'perl-authen-pam' 'perl-ldap' 'perl-net-ldap-server'
+         'perl-authen-radius' 'perl-crypt-openssl-x509'
+         'perl-mailtools' 'perl-mime-lite'
+         'pam' 'pam-ccreds' 'lsof')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-access-control"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-access-control"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

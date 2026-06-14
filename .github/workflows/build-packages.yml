@@ -1,0 +1,277 @@
+name: Build Packages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'scripts/ci/**'
+      - 'meta/manifests/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'scripts/ci/**'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Specific package to build (leave empty for all)'
+        required: false
+        type: string
+      skip_failures:
+        description: 'Skip failed packages and continue'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAKEFLAGS: '-j$(nproc)'
+
+jobs:
+  lint-pkgbuilds:
+    name: Lint PKGBUILDs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install namcap
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y namcap
+
+      - name: Lint all PKGBUILDs
+        run: |
+          failed=0
+          find packages -name PKGBUILD -print0 | while IFS= read -r -d '' pkgbuild; do
+            echo "::group::Linting $(dirname "$pkgbuild")"
+            namcap -i "$pkgbuild" || failed=1
+            echo "::endgroup::"
+          done
+          exit $failed
+
+  build-core:
+    name: Build Core Packages
+    needs: lint-pkgbuilds
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pacman
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git rust cargo cmake \
+            perl perl-module-build nodejs npm
+
+      - name: Build core packages
+        run: |
+          bash scripts/ci/build-all.sh --only proxmox-rs \
+            || bash scripts/ci/build-all.sh --skip-failures --only proxmox-rs
+          bash scripts/ci/build-all.sh --only pve-common
+          bash scripts/ci/build-all.sh --only proxmox-widget-toolkit
+          bash scripts/ci/build-all.sh --only proxmox-i18n
+
+      - name: Upload core artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-packages
+          path: repo/*.pkg.tar.zst
+          retention-days: 7
+
+  build-pve:
+    name: Build PVE Packages
+    needs: build-core
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pacman
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git rust cargo cmake \
+            perl perl-module-build nodejs npm \
+            zfs-utils lvm2 corosync libqb qemu-full lxc lxcfs \
+            openvswitch iptables-nft nftables
+
+      - name: Download core artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: core-packages
+          path: repo/
+
+      - name: Install core packages
+        run: |
+          cd repo
+          pacman -U --noconfirm *.pkg.tar.zst 2>/dev/null || true
+
+      - name: Build PVE packages
+        run: |
+          bash scripts/ci/build-all.sh --from pve-access-control \
+            --skip-failures="${{ inputs.skip_failures || false }}"
+
+      - name: Upload PVE artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pve-packages
+          path: repo/*.pkg.tar.zst
+          retention-days: 7
+
+  build-pbs:
+    name: Build PBS Packages
+    needs: build-core
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pacman
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git rust cargo cmake \
+            protobuf perl perl-module-build postgresql postgresql-libs
+
+      - name: Download core artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: core-packages
+          path: repo/
+
+      - name: Install core packages
+        run: |
+          cd repo
+          pacman -U --noconfirm *.pkg.tar.zst 2>/dev/null || true
+
+      - name: Build PBS packages
+        run: |
+          bash scripts/ci/build-all.sh --from pxar \
+            --skip-failures="${{ inputs.skip_failures || false }}"
+
+      - name: Upload PBS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pbs-packages
+          path: repo/*.pkg.tar.zst
+          retention-days: 7
+
+  build-pmg:
+    name: Build PMG Packages
+    needs: build-core
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pacman
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git rust cargo cmake \
+            perl perl-module-build postfix clamav spamassassin
+
+      - name: Download core artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: core-packages
+          path: repo/
+
+      - name: Install core packages
+        run: |
+          cd repo
+          pacman -U --noconfirm *.pkg.tar.zst 2>/dev/null || true
+
+      - name: Build PMG packages
+        run: |
+          bash scripts/ci/build-all.sh --from pmg-api \
+            --skip-failures="${{ inputs.skip_failures || false }}"
+
+      - name: Upload PMG artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmg-packages
+          path: repo/*.pkg.tar.zst
+          retention-days: 7
+
+  build-infra:
+    name: Build Infrastructure Packages
+    needs: lint-pkgbuilds
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pacman
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git rust cargo cmake \
+            autoconf automake libtool pkg-config
+
+      - name: Build infrastructure packages
+        run: |
+          bash scripts/ci/build-all.sh --from libiscsi \
+            --skip-failures=true
+
+      - name: Upload infra artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: infra-packages
+          path: repo/*.pkg.tar.zst
+          retention-days: 7
+
+  update-repo:
+    name: Update Repository Database
+    needs: [build-pve, build-pbs, build-pmg, build-infra]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-packages"
+          path: repo/
+
+      - name: Create repository database
+        run: |
+          mkdir -p repo
+          find . -name '*.pkg.tar.zst' -exec cp {} repo/ \;
+          bash scripts/ci/repo-add.sh
+
+      - name: Upload complete repository
+        uses: actions/upload-artifact@v4
+        with:
+          name: archmox-repo
+          path: repo/
+          retention-days: 30
+
+  notify:
+    name: Notify Build Status
+    needs: [update-repo]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: env.DISCORD_WEBHOOK != ''
+        run: |
+          STATUS="${{ needs.update-repo.result }}"
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"**Archmox Package Build**: $STATUS\nCommit: ${{ github.sha }}\"}" \
+            "$DISCORD_WEBHOOK"

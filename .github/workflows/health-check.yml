@@ -1,0 +1,175 @@
+name: Fleet Health Check
+
+on:
+  schedule:
+    # Run every 30 minutes (matching the worker's cron trigger)
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      notify:
+        description: 'Send notifications even if all healthy'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: health-check
+  cancel-in-progress: false
+
+jobs:
+  check-fleet:
+    name: Check All Fleet Services
+    runs-on: ubuntu-latest
+    outputs:
+      all_healthy: ${{ steps.assess.outputs.all_healthy }}
+      summary: ${{ steps.assess.outputs.summary }}
+    steps:
+      - name: Check main site
+        id: main
+        run: |
+          START=$(date +%s%N)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 10 \
+            https://archmox.acreetionos.org/ 2>&1)
+          END=$(date +%s%N)
+          MS=$(( (END - START) / 1000000 ))
+          echo "status=$([ "$HTTP_CODE" = "200" ] && echo "up" || echo "down")" >> $GITHUB_OUTPUT
+          echo "ms=$MS" >> $GITHUB_OUTPUT
+          echo "code=$HTTP_CODE" >> $GITHUB_OUTPUT
+
+      - name: Check PVE
+        id: pve
+        run: |
+          START=$(date +%s%N)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 10 \
+            https://pve.archmox.acreetionos.org/ 2>&1)
+          END=$(date +%s%N)
+          MS=$(( (END - START) / 1000000 ))
+          echo "status=$([ "$HTTP_CODE" = "200" ] && echo "up" || echo "down")" >> $GITHUB_OUTPUT
+          echo "ms=$MS" >> $GITHUB_OUTPUT
+
+      - name: Check PBS
+        id: pbs
+        run: |
+          START=$(date +%s%N)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 10 \
+            https://pbs.archmox.acreetionos.org/ 2>&1)
+          END=$(date +%s%N)
+          MS=$(( (END - START) / 1000000 ))
+          echo "status=$([ "$HTTP_CODE" = "200" ] && echo "up" || echo "down")" >> $GITHUB_OUTPUT
+          echo "ms=$MS" >> $GITHUB_OUTPUT
+
+      - name: Check PMG
+        id: pmg
+        run: |
+          START=$(date +%s%N)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 10 \
+            https://pmg.archmox.acreetionos.org/ 2>&1)
+          END=$(date +%s%N)
+          MS=$(( (END - START) / 1000000 ))
+          echo "status=$([ "$HTTP_CODE" = "200" ] && echo "up" || echo "down")" >> $GITHUB_OUTPUT
+          echo "ms=$MS" >> $GITHUB_OUTPUT
+
+      - name: Check Docs
+        id: docs
+        run: |
+          START=$(date +%s%N)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 10 \
+            https://docs.archmox.acreetionos.org/ 2>&1)
+          END=$(date +%s%N)
+          MS=$(( (END - START) / 1000000 ))
+          echo "status=$([ "$HTTP_CODE" = "200" ] && echo "up" || echo "down")" >> $GITHUB_OUTPUT
+          echo "ms=$MS" >> $GITHUB_OUTPUT
+
+      - name: Check CDN
+        id: cdn
+        run: |
+          START=$(date +%s%N)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 10 \
+            https://cdn.archmox.acreetionos.org/ 2>&1)
+          END=$(date +%s%N)
+          MS=$(( (END - START) / 1000000 ))
+          echo "status=$([ "$HTTP_CODE" = "200" ] && echo "up" || echo "down")" >> $GITHUB_OUTPUT
+          echo "ms=$MS" >> $GITHUB_OUTPUT
+
+      - name: Check API Health
+        id: api
+        run: |
+          RESP=$(curl -s --connect-timeout 10 \
+            https://archmox.acreetionos.org/api/health 2>&1)
+          echo "response<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESP" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Assess overall health
+        id: assess
+        run: |
+          ALL_UP=true
+          SUMMARY=""
+
+          for service in main pve pbs pmg docs cdn; do
+            STATUS="${{ steps[service].outputs.status }}"
+            MS="${{ steps[service].outputs.ms }}"
+            if [ "$STATUS" != "up" ]; then
+              ALL_UP=false
+              SUMMARY="$SUMMARY\n  ❌ $service: $STATUS (${MS}ms)"
+            else
+              SUMMARY="$SUMMARY\n  ✅ $service: $STATUS (${MS}ms)"
+            fi
+          done
+
+          echo "all_healthy=$ALL_UP" >> $GITHUB_OUTPUT
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+
+          echo "::notice::Fleet Health Summary:$SUMMARY"
+
+  notify-health:
+    name: Notify on Health Issues
+    needs: check-fleet
+    if: |
+      always() &&
+      (needs.check-fleet.outputs.all_healthy == 'false' ||
+       github.event.inputs.notify == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: env.DISCORD_WEBHOOK != ''
+        run: |
+          HEALTHY="${{ needs.check-fleet.outputs.all_healthy }}"
+          SUMMARY="${{ needs.check-fleet.outputs.summary }}"
+          STATUS_ICON="$([ "$HEALTHY" = "true" ] && echo "✅" || echo "❌")"
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{
+              \"content\": \"${STATUS_ICON} **Archmox Fleet Health Check**\n\`\`\`\n${SUMMARY}\n\`\`\`\"
+            }" \
+            "$DISCORD_WEBHOOK"
+
+  record-metrics:
+    name: Record Health Metrics
+    needs: check-fleet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Store in KV (via API)
+        run: |
+          curl -s -X POST \
+            "https://archmox.acreetionos.org/api/health/record" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+              "source": "github-actions",
+              "results": {
+                "main": "${{ steps.main.outputs.status }}-${{ steps.main.outputs.ms }}ms",
+                "pve": "${{ steps.pve.outputs.status }}-${{ steps.pve.outputs.ms }}ms",
+                "pbs": "${{ steps.pbs.outputs.status }}-${{ steps.pbs.outputs.ms }}ms",
+                "pmg": "${{ steps.pmg.outputs.status }}-${{ steps.pmg.outputs.ms }}ms",
+                "docs": "${{ steps.docs.outputs.status }}-${{ steps.docs.outputs.ms }}ms",
+                "cdn": "${{ steps.cdn.outputs.status }}-${{ steps.cdn.outputs.ms }}ms"
+              }
+            }' || true

@@ -1,0 +1,27 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-lvm
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="LVM2 with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('GPL2')
+depends=('glibc' 'libdevmapper' 'libselinux' 'libsepol' 'libuuid'
+         'libblkid' 'readline' 'udev' 'thin-provisioning-tools')
+makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/lvm"
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --enable-udev_rules --enable-udev_sync --enable-dmeventd
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/lvm"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

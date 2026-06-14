@@ -1,0 +1,27 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-libspice-server
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="SPICE server library with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('LGPL2.1')
+depends=('glibc' 'spice-protocol' 'openssl' 'pixman' 'zlib'
+         'libjpeg-turbo' 'lz4')
+makedepends=('make' 'gcc' 'pkg-config' 'meson' 'ninja' 'python')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/pve-libspice-server"
+  mkdir -p build && cd build
+  meson setup --prefix=/usr --libdir=/usr/lib ..
+  ninja
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/pve-libspice-server/build"
+  DESTDIR="${pkgdir}" ninja install
+  install -Dm644 ../LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

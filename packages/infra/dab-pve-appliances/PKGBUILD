@@ -1,0 +1,20 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-dab-pve-appliances
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE appliance templates for DAB - ported for Arch Linux"
+arch=('any')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-dab')
+makedepends=()
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/dab-pve-appliances"
+  install -dm755 "${pkgdir}/usr/share/dab/templates"
+  cp -r templates/* "${pkgdir}/usr/share/dab/templates/" 2>/dev/null || true
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

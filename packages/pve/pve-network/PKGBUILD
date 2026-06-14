@@ -1,0 +1,30 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-network
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE network management - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-firewall'
+         'archmox-pve-cluster' 'perl' 'perl-json' 'perl-libwww'
+         'perl-io-socket-ssl' 'perl-net-ip' 'perl-net-dns'
+         'perl-xml-libxml' 'perl-filesys-df' 'perl-string-shellquote'
+         'perl-linux-inotify2' 'ifupdown-ng' 'openvswitch'
+         'bridge-utils' 'ethtool' 'iproute2' 'iptables-nft'
+         'conntrack-tools')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-network"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-network"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

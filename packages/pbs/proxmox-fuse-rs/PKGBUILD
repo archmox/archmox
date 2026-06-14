@@ -1,0 +1,29 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-proxmox-fuse-rs
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox FUSE filesystem (Rust) - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('glibc' 'gcc-libs' 'fuse3' 'libsodium' 'zstd' 'lz4')
+makedepends=('rust' 'cargo' 'pkg-config' 'make' 'fuse3')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-fuse-rs"
+  cargo build --release --frozen
+}
+
+check() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-fuse-rs"
+  cargo test --release --frozen
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-fuse-rs"
+  cargo install --root="${pkgdir}/usr" --frozen
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

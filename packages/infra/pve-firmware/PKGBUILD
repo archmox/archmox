@@ -1,0 +1,20 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-firmware
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE firmware files - ported for Arch Linux"
+arch=('any')
+url="https://archmox.acreetionos.org"
+license=('GPL2' 'BSD' 'MIT')
+depends=()
+makedepends=()
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/pve-firmware"
+  install -dm755 "${pkgdir}/usr/lib/firmware"
+  cp -r * "${pkgdir}/usr/lib/firmware/" 2>/dev/null || true
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

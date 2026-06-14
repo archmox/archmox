@@ -1,0 +1,30 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-proxmox-firewall
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox firewall (nftables-based) - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('glibc' 'gcc-libs' 'libnftnl' 'libmnl' 'nftables'
+         'jansson' 'libnetfilter_conntrack' 'libnfnetlink')
+makedepends=('rust' 'cargo' 'make' 'gcc' 'pkg-config')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/proxmox-firewall"
+  cargo build --release --frozen
+}
+
+check() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/proxmox-firewall"
+  cargo test --release --frozen
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/proxmox-firewall"
+  cargo install --root="${pkgdir}/usr" --frozen
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

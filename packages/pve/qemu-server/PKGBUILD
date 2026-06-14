@@ -1,0 +1,38 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-qemu-server
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE QEMU/KVM server management - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-pve-guest-common' 'archmox-pve-storage'
+         'archmox-pve-firewall' 'archmox-pve-access-control'
+         'qemu' 'qemu-audio-alsa' 'qemu-audio-pa' 'qemu-audio-spice'
+         'qemu-block-iscsi' 'qemu-block-rbd' 'qemu-desktop'
+         'qemu-hw-usb-redirect' 'qemu-ui-spice-core' 'qemu-ui-vnc'
+         'qemu-vhost-user-gpu' 'perl' 'perl-json' 'perl-libwww'
+         'perl-net-ip' 'perl-io-socket-ssl' 'perl-xml-libxml'
+         'perl-filesys-df' 'perl-string-shellquote'
+         'perl-linux-inotify2' 'dmidecode' 'seabios' 'ovmf' 'swtpm'
+         'proxmox-archive-keyring')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/qemu-server"
+  make
+}
+
+check() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/qemu-server"
+  make test
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/qemu-server"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,163 @@
+name: Build ISO
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'ISO version tag (e.g. 2026.06)'
+        required: true
+        type: string
+      label:
+        description: 'ISO volume label'
+        required: false
+        type: string
+
+concurrency:
+  group: iso-build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ARCHMOX_VERSION: ${{ github.event.inputs.version || github.ref_name }}
+  ISO_LABEL: ${{ github.event.inputs.label || format('ARCHMOX_{0}', github.event.inputs.version || github.ref_name) }}
+
+jobs:
+  build-packages:
+    name: Build All Packages
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pacman
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel git rust cargo cmake \
+            perl perl-module-build nodejs npm \
+            zfs-utils lvm2 corosync libqb qemu-full lxc lxcfs \
+            openvswitch iptables-nft nftables \
+            protobuf postgresql postgresql-libs \
+            postfix clamav spamassassin \
+            autoconf automake libtool pkg-config
+
+      - name: Build all packages
+        run: |
+          bash scripts/ci/build-all.sh --skip-failures=true
+
+      - name: Upload all packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: iso-packages
+          path: repo/
+          retention-days: 7
+
+  build-iso:
+    name: Build Installation ISO
+    needs: build-packages
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install archiso
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm archiso squashfs-tools \
+            dosfstools mtools libisoburn
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: iso-packages
+          path: repo/
+
+      - name: Build ISO
+        run: |
+          export ARCHMOX_VERSION="${{ env.ARCHMOX_VERSION }}"
+          bash scripts/release/make-iso.sh \
+            --label "${{ env.ISO_LABEL }}" \
+            --out out/
+
+      - name: List ISO files
+        run: ls -lh out/
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: archmox-iso
+          path: out/*.iso*
+          retention-days: 90
+
+  upload-to-cdn:
+    name: Upload ISO to CDN
+    needs: build-iso
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download ISO
+        uses: actions/download-artifact@v4
+        with:
+          name: archmox-iso
+          path: iso-files/
+
+      - name: Upload to R2
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: |
+            r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso \
+              --file iso-files/*.iso
+            r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso.sha256 \
+              --file iso-files/*.sha256
+
+      - name: Update latest symlink
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: |
+            r2 object put archmox-cdn-isos/archmox-latest.iso \
+              --file iso-files/*.iso
+
+  create-release-assets:
+    name: Attach ISO to Release
+    needs: build-iso
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download ISO
+        uses: actions/download-artifact@v4
+        with:
+          name: archmox-iso
+          path: iso-files/
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            iso-files/*.iso
+            iso-files/*.sha256
+            iso-files/*.md5
+
+  notify:
+    name: Notify ISO Build Status
+    needs: [build-iso, upload-to-cdn]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: env.DISCORD_WEBHOOK != ''
+        run: |
+          STATUS="${{ needs.build-iso.result }}"
+          VERSION="${{ env.ARCHMOX_VERSION }}"
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"**Archmox ISO Build**: $STATUS\nVersion: $VERSION\nRelease: ${{ github.event.release.html_url || 'manual' }}\"}" \
+            "$DISCORD_WEBHOOK"

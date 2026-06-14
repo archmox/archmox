@@ -1,0 +1,117 @@
+name: Deploy Website to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - 'docs/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-links:
+    name: Check Documentation Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install lychee
+        run: |
+          curl -sL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv lychee /usr/local/bin/
+
+      - name: Check docs links
+        run: |
+          lychee --no-progress --format detailed \
+            --exclude "localhost|127.0.0.1|git.proxmox.com|pve.proxmox.com" \
+            docs/ website/ \
+            || echo "Link check found issues (non-fatal for deployment)"
+
+  build-site:
+    name: Build Website
+    needs: [check-links]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Copy docs into website
+        run: |
+          mkdir -p website/docs-content
+          cp -r docs/* website/docs-content/
+          # Generate a docs index that links to the markdown files
+          # (Cloudflare Pages will serve .md as HTML)
+
+      - name: Prepare website for deployment
+        run: |
+          # Ensure proper file structure
+          ls -la website/
+          # Check that all required files exist
+          test -f website/index.html
+          test -f website/_headers
+          test -f website/_redirects
+
+      - name: Upload website artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/
+
+  deploy-pages:
+    name: Deploy to Cloudflare Pages
+    needs: build-site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy website/ --project-name=archmox --branch=main
+
+  deploy-subdomains:
+    name: Deploy Subdomain Pages
+    needs: build-site
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        subdomain: [pve, pbs, pmg, cdn]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy ${{ matrix.subdomain }} subdomain
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: |
+            pages deploy website/${{ matrix.subdomain }}/ \
+              --project-name=archmox-${{ matrix.subdomain }} \
+              --branch=main
+
+  notify:
+    name: Notify Deployment Status
+    needs: [deploy-pages, deploy-subdomains]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        if: env.DISCORD_WEBHOOK != ''
+        run: |
+          STATUS="${{ needs.deploy-pages.result }}"
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"**Archmox Pages Deploy**: $STATUS\nCommit: ${{ github.sha }}\nURL: https://archmox.acreetionos.org\"}" \
+            "$DISCORD_WEBHOOK"

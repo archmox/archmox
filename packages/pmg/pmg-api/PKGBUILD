@@ -1,0 +1,35 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pmg-api
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox Mail Gateway API - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-pve-access-control'
+         'archmox-pve-http-server' 'archmox-pve-cluster'
+         'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-net-ip' 'perl-net-dns' 'perl-xml-libxml'
+         'perl-template-toolkit' 'perl-crypt-openssl-rsa'
+         'perl-crypt-ssleay' 'perl-datetime' 'perl-linux-inotify2'
+         'perl-filesys-df' 'perl-mailtools' 'perl-mime-lite'
+         'perl-email-simple' 'perl-email-mime'
+         'perl-email-mime-contenttype' 'perl-email-address'
+         'perl-net-server' 'perl-net-smtp-ssl'
+         'postfix' 'clamav' 'spamassassin' 'dkim-milter'
+         'proxmox-archive-keyring')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pmg/pmg-api"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pmg/pmg-api"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

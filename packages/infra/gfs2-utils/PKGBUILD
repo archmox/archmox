@@ -1,0 +1,26 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-gfs2-utils
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="GFS2 filesystem utilities with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('GPL2')
+depends=('glibc' 'libuuid' 'libblkid' 'libnl' 'corosync' 'pacemaker')
+makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/gfs2-utils"
+  ./autogen.sh
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/gfs2-utils"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

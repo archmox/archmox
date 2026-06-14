@@ -1,0 +1,30 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-storage
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE storage management - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-firewall'
+         'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
+         'perl-net-ip' 'perl-xml-libxml' 'perl-filesys-df'
+         'perl-string-shellquote' 'perl-linux-inotify2'
+         'lvm2' 'btrfs-progs' 'zfs-utils' 'ceph-common'
+         'cifs-utils' 'nfs-utils' 'glusterfs' 'smbclient'
+         'proxmox-backup-client' 'pve-sheepdog')
+makedepends=('make' 'gcc' 'perl-module-build')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-storage"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-storage"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

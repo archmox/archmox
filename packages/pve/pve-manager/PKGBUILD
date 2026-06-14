@@ -1,0 +1,40 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pve-manager
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox VE Virtual Environment Manager - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-pve-common' 'archmox-qemu-server' 'archmox-pve-container'
+         'archmox-pve-cluster' 'archmox-pve-storage' 'archmox-pve-firewall'
+         'archmox-pve-ha-manager' 'archmox-pve-access-control'
+         'archmox-pve-guest-common' 'archmox-pve-http-server'
+         'archmox-pve-xtermjs' 'archmox-pve-zsync'
+         'archmox-proxmox-widget-toolkit' 'archmox-proxmox-i18n'
+         'perl' 'perl-json' 'perl-libwww' 'perl-template-toolkit'
+         'perl-crypt-openssl-rsa' 'perl-crypt-ssleay' 'perl-io-socket-ssl'
+         'perl-net-ssleay' 'perl-http-daemon' 'perl-cgi' 'perl-datetime'
+         'perl-db-file' 'perl-file-slurp' 'perl-filesys-df'
+         'perl-linux-inotify2' 'perl-net-ip' 'perl-net-dns'
+         'perl-unicode-string' 'perl-uri' 'perl-xml-libxml'
+         'perl-xml-simple' 'perl-sys-cpu' 'perl-sys-filesystem'
+         'perl-mailtools' 'perl-mime-lite' 'perl-string-shellquote'
+         'libjs-extjs' 'snapraid' 'zfs-utils' 'lvm2' 'btrfs-progs'
+         'ceph-common' 'watchdog' 'nginx' 'postfix' 'dtach' 'graphviz'
+         'libpve-network-perl' 'novnc-pve' 'proxmox-archive-keyring')
+makedepends=('make' 'gcc' 'perl-module-build' 'git' 'rsync')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-manager"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-manager"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

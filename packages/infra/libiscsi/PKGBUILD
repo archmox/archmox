@@ -1,0 +1,25 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-libiscsi
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="iSCSI library with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('GPL2' 'LGPL2.1')
+depends=('glibc' 'openssl' 'libxml2')
+makedepends=('make' 'gcc' 'pkg-config')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/libiscsi"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/libiscsi"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

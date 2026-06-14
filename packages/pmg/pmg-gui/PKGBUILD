@@ -1,0 +1,25 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-pmg-gui
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Proxmox Mail Gateway GUI - ported for Arch Linux"
+arch=('any')
+url="https://archmox.acreetionos.org"
+license=('AGPL3')
+depends=('archmox-proxmox-widget-toolkit' 'archmox-pmg-api'
+         'archmox-proxmox-i18n')
+makedepends=('nodejs' 'npm' 'sass' 'make')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pmg/pmg-gui"
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/pmg/pmg-gui"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

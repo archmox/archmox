@@ -1,0 +1,34 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+
+pkgname=archmox-qemu
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="QEMU with Proxmox patches - ported for Arch Linux"
+arch=('x86_64')
+url="https://archmox.acreetionos.org"
+license=('GPL2')
+depends=('glibc' 'gcc-libs' 'glib2' 'pixman' 'zlib' 'libcap-ng'
+         'libseccomp' 'libaio' 'libpng' 'libjpeg-turbo' 'libssh'
+         'libusb' 'lzo' 'snappy' 'bzip2' 'curl' 'gnutls' 'nettle'
+         'gmp' 'keyutils' 'cyrus-sasl' 'libiscsi' 'libnfs'
+         'liburing' 'spice' 'spice-protocol' 'virglrenderer'
+         'capstone' 'dtc' 'slirp4netns')
+makedepends=('make' 'gcc' 'pkg-config' 'python' 'ninja' 'meson')
+source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/qemu"
+  mkdir -p build && cd build
+  ../configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --enable-kvm --enable-vnc --enable-spice --enable-virtfs \
+    --enable-modules --enable-vhost-user --enable-vhost-crypto \
+    --enable-mpath --enable-tools --target-list=x86_64-softmmu
+  make
+}
+
+package() {
+  cd "${srcdir}/archmox-${pkgver}/packages/infra/qemu/build"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 ../LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
