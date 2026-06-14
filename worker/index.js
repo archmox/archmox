@@ -75,9 +75,8 @@ code{font-family:var(--font-mono);background:rgba(42,157,143,0.1);padding:0.15re
 </div>
 <div class="box">
 <h2>Installation</h2>
-<p>Archmox PVE is installed via <code>pacman</code> on an Arch Linux system:</p>
-<p><code>sudo pacman -S archmox-pve</code></p>
-<p>Or boot the Archmox ISO from <a href="https://cdn.archmox.acreetionos.org">cdn.archmox.acreetionos.org</a> for a turnkey installation.</p>
+<p style="text-align:center;padding:1.5rem;background:var(--am-box);border:1px solid var(--am-border);border-radius:10px;font-size:1.1rem;color:var(--am-teal);font-weight:700">&#8987; Coming Soon</p>
+<p>Installation packages and ISOs will be available once the initial port is complete.</p>
 </div>
 <a href="https://archmox.acreetionos.org" class="back">&larr; Back to Archmox</a>
 </div>
@@ -148,7 +147,7 @@ code{font-family:var(--font-mono);background:rgba(42,157,143,0.1);padding:0.15re
 </div>
 <div class="box">
 <h2>Installation</h2>
-<p><code>sudo pacman -S archmox-pbs</code></p>
+<p style="text-align:center;padding:1.5rem;background:var(--am-box);border:1px solid var(--am-border);border-radius:10px;font-size:1.1rem;color:var(--am-teal);font-weight:700">&#8987; Coming Soon</p>
 </div>
 <a href="https://archmox.acreetionos.org" class="back">&larr; Back to Archmox</a>
 </div>
@@ -219,7 +218,7 @@ code{font-family:var(--font-mono);background:rgba(42,157,143,0.1);padding:0.15re
 </div>
 <div class="box">
 <h2>Installation</h2>
-<p><code>sudo pacman -S archmox-pmg</code></p>
+<p style="text-align:center;padding:1.5rem;background:var(--am-box);border:1px solid var(--am-border);border-radius:10px;font-size:1.1rem;color:var(--am-teal);font-weight:700">&#8987; Coming Soon</p>
 </div>
 <a href="https://archmox.acreetionos.org" class="back">&larr; Back to Archmox</a>
 </div>
@@ -344,21 +343,13 @@ code{font-family:var(--font-mono);background:rgba(42,157,143,0.1);padding:0.15re
 </header>
 <div class="box">
 <h2>ISO Downloads</h2>
-<p>Download Archmox installation ISOs for bare-metal and VM deployment. Verify downloads with the SHA256 checksums and GPG signatures provided alongside each file.</p>
-<div class="listing">
-<strong>&#128194; /isos/</strong>
-<a href="#">latest/archmox-ve-1.0-x86_64.iso</a>
-<a href="#">latest/archmox-ve-1.0-x86_64.iso.sha256</a>
-<a href="#">latest/archmox-ve-1.0-x86_64.iso.asc</a>
-<a href="#">stable/archmox-pbs-1.0-x86_64.iso</a>
-<a href="#">stable/archmox-pmg-1.0-x86_64.iso</a>
-</div>
+<p style="text-align:center;padding:1.5rem;background:var(--am-box);border:1px solid var(--am-border);border-radius:10px;font-size:1.1rem;color:var(--am-teal);font-weight:700">&#8987; Coming Soon</p>
+<p>Archmox installation ISOs and binary packages will be available once the initial port is complete.</p>
 </div>
 <div class="box">
 <h2>Binary Repository</h2>
-<p>Archmox packages are available via an Arch Linux binary repository. Add the following to your <code>/etc/pacman.conf</code>:</p>
-<p><code>[archmox]<br>Server = https://cdn.archmox.acreetionos.org/repos/$arch</code></p>
-<p>Then install with <code>sudo pacman -Syu && sudo pacman -S archmox-pve</code>.</p>
+<p style="text-align:center;padding:1.5rem;background:var(--am-box);border:1px solid var(--am-border);border-radius:10px;font-size:1.1rem;color:var(--am-teal);font-weight:700">&#8987; Coming Soon</p>
+<p>Archmox packages will be available via an Arch Linux binary repository once the port stabilizes.</p>
 </div>
 <div class="box">
 <h2>Mirrors</h2>
