@@ -55,9 +55,12 @@ jobs:
 
       - name: Count broken links
         run: |
-          BROKEN=$(grep -c "🔴\|404\|Failed\|Error" lychee-report.txt 2>/dev/null || echo "0")
+          # grep -c prints 0 AND exits non-zero when there are no matches;
+          # taking the first line avoids doubling it via the fallback
+          BROKEN="$(grep -c "🔴\|404\|Failed\|Error" lychee-report.txt 2>/dev/null | head -1)"
+          [[ -z "${BROKEN}" ]] && BROKEN=0
           echo "Broken links found: $BROKEN"
-          echo "broken=$BROKEN" >> $GITHUB_OUTPUT
+          echo "broken=${BROKEN}" >> $GITHUB_OUTPUT
 
   markdown-lint:
     name: Lint Markdown Files
