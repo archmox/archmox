@@ -1,0 +1,70 @@
+# archmox fleet — proxies archmox hostnames to their Cloudflare Pages
+# deployments instead of falling into the acreetionos.org catch-all redirect.
+# Backends mapped in conf.d/archmox-fleet-map.conf
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name archmox.acreetionos.org
+                pve.archmox.acreetionos.org pbs.archmox.acreetionos.org
+                pmg.archmox.acreetionos.org cdn.archmox.acreetionos.org
+                docs.archmox.acreetionos.org;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+        allow all; default_type "text/plain"; try_files $uri =404;
+    }
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name archmox.acreetionos.org
+                pve.archmox.acreetionos.org pbs.archmox.acreetionos.org
+                pmg.archmox.acreetionos.org cdn.archmox.acreetionos.org
+                docs.archmox.acreetionos.org;
+
+    ssl_certificate /etc/letsencrypt/live/archmox-fleet/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/archmox-fleet/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Pages deployments are resolved dynamically per request
+    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;
+    resolver_timeout 5s;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+        allow all; default_type "text/plain"; try_files $uri =404;
+    }
+
+    # Cloudflare Worker (API + R2 object serving)
+    location ~ ^/(api|cdn)/ {
+        resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;
+        proxy_pass https://archmox-api.spivajohnathan64.workers.dev;
+        proxy_http_version 1.1;
+        proxy_set_header Host archmox-api.spivajohnathan64.workers.dev;
+        proxy_set_header Connection "";
+        proxy_ssl_server_name on;
+        proxy_ssl_name archmox-api.spivajohnathan64.workers.dev;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+
+    location / {
+        proxy_pass https://$archmox_pages_upstream$request_uri;
+        proxy_http_version 1.1;
+        proxy_set_header Host $archmox_pages_upstream;
+        proxy_set_header Connection "";
+        proxy_ssl_server_name on;
+        proxy_ssl_name $archmox_pages_upstream;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}

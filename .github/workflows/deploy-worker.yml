@@ -120,9 +120,59 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           SECURITY_WEBHOOK: ${{ secrets.SECURITY_WEBHOOK }}
 
+  deploy:
+    name: Deploy Worker to Cloudflare
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    env:
+      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_KEY != '' && secrets.CLOUDFLARE_EMAIL != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip (Cloudflare secrets not configured)
+        if: env.CF_ENABLED != 'true'
+        run: |
+          echo "::warning::CLOUDFLARE_API_KEY / CLOUDFLARE_EMAIL / CLOUDFLARE_ACCOUNT_ID are not set;"
+          echo "::warning::skipping worker deployment. Add repo secrets to enable."
+
+      - name: Deploy via wrangler
+        if: env.CF_ENABLED == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: 3.90.0
+          workingDirectory: worker
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Re-enable workers.dev route
+        if: env.CF_ENABLED == 'true'
+        run: |
+          # wrangler deploy preserves this, but guard against route drift
+          curl -sS -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/archmox-api/subdomain" \
+            -H "X-Auth-Email: ${{ secrets.CLOUDFLARE_EMAIL }}" \
+            -H "X-Auth-Key: ${{ secrets.CLOUDFLARE_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            --data '{"enabled":true,"previews_enabled":false}' > /dev/null
+
+      - name: Smoke test
+        if: env.CF_ENABLED == 'true'
+        run: |
+          sleep 10
+          RESP=$(curl -s --max-time 20 https://archmox-api.spivajohnathan64.workers.dev/api/health)
+          echo "$RESP"
+          grep -q '"status":"ok"' <<<"$RESP" || {
+            echo "::error::Worker health check failed after deploy"
+            exit 1
+          }
+
   notify:
     name: Notify Deployment Status
-    needs: [deploy-production]
+    needs: [deploy]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -131,7 +181,7 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         if: env.DISCORD_WEBHOOK != ''
         run: |
-          STATUS="${{ needs.deploy-production.result }}"
+          STATUS="${{ needs.deploy.result }}"
           curl -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"**Archmox Worker Deploy**: $STATUS\nCommit: ${{ github.sha }}\nURL: https://archmox.acreetionos.org/api/health\"}" \
+            -d "{\"content\": \"**Archmox Worker Deploy**: $STATUS\nCommit: ${{ github.sha }}\"}" \
             "$DISCORD_WEBHOOK"

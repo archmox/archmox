@@ -73,6 +73,23 @@ async function handleCDN(request, env, cors) {
     return jsonResponse({ packages: pkgs }, 200, cors);
   }
 
+  // GET /cdn/repos/:filename — download package
+  if (path.startsWith('repos/') && request.method === 'GET') {
+    const filename = path.replace('repos/', '');
+    if (!filename || filename.includes('..')) {
+      return jsonResponse({ error: 'Invalid filename' }, 400, cors);
+    }
+    const obj = await env.CDN_REPOS.get(filename);
+    if (!obj) return jsonResponse({ error: 'Package not found' }, 404, cors);
+    return new Response(obj.body, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Cache-Control': 'public, max-age=3600',
+      },
+    });
+  }
+
   // GET /cdn/status — CDN health
   if (path === 'status' && request.method === 'GET') {
     const isoCount = (await env.CDN_ISOS.list()).objects.length;
