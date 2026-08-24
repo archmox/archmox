@@ -37,7 +37,7 @@ jobs:
           pacman -Syu --noconfirm
           pacman -S --noconfirm base-devel git rust cargo cmake \
             perl perl-module-build nodejs npm \
-            zfs-dkms lvm2 libqb qemu-full lxc lxcfs \
+            lvm2 libqb qemu-full lxc lxcfs \
             openvswitch iptables-nft nftables \
             protobuf postgresql postgresql-libs \
             postfix clamav spamassassin \
