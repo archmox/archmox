@@ -103,6 +103,40 @@ warn()   { echo -e "${YELLOW}[WARN]${NC} $*" >&2; }
 error()  { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 info()   { echo -e "${CYAN}[INFO]${NC} $*"; }
 
+# makepkg refuses to run as root, which is exactly how CI containers run.
+# Drop to a dedicated unprivileged user for builds while keeping repo
+# bookkeeping (pacman -U, cp into REPODIR) as root.
+readonly BUILDER_USER="builder"
+
+is_root() { [[ "$(id -u)" -eq 0 ]]; }
+
+ensure_builder() {
+  if ! is_root; then
+    return 0
+  fi
+  if ! command -v sudo >/dev/null 2>&1; then
+    error "Running as root requires sudo to drop privileges for makepkg."
+    error "Install base-devel or create an unprivileged build user."
+    exit 1
+  fi
+  if ! id "${BUILDER_USER}" &>/dev/null; then
+    log "Creating unprivileged build user '${BUILDER_USER}'..."
+    useradd -m -s /bin/bash "${BUILDER_USER}"
+    echo "${BUILDER_USER} ALL=(ALL:ALL) NOPASSWD: ALL" \
+      > "/etc/sudoers.d/90-${BUILDER_USER}"
+    chmod 440 "/etc/sudoers.d/90-${BUILDER_USER}"
+  fi
+}
+
+run_as_builder() {
+  if is_root; then
+    sudo -H -u "${BUILDER_USER}" "$@"
+  else
+    "$@"
+  fi
+}
+
+
 _pkgdir_to_cat() {
   local name="$1"
   case "$name" in
@@ -144,10 +178,15 @@ build_package() {
     cp -a "${pkgdir}/src" "${build_dir}/"
   fi
 
+  ensure_builder
+  if is_root; then
+    chown -R "${BUILDER_USER}:" "${build_dir}" "${BUILDDIR}" "${LOGDIR}"
+  fi
+
   pushd "${build_dir}" >/dev/null 2>&1
 
-  # Build with makepkg
-  if makepkg -s --noconfirm 2>&1 | tee "${LOGDIR}/${pkgname}.log"; then
+  # Build with makepkg (as an unprivileged user when running as root)
+  if run_as_builder makepkg -s --noconfirm 2>&1 | tee "${LOGDIR}/${pkgname}.log"; then
     popd >/dev/null 2>&1
     # Install the resulting package
     local pkgfile
