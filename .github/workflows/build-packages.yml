@@ -47,11 +47,14 @@ jobs:
 
       - name: Lint all PKGBUILDs
         run: |
-          set -o pipefail
           status=0
           while IFS= read -r -d '' pkgbuild; do
             echo "::group::Linting $(dirname "$pkgbuild")"
-            if ! namcap -i "$pkgbuild"; then
+            # namcap exits non-zero for warnings too; only error-level
+            # tags ("E:") should fail the job.
+            out="$(namcap -i "$pkgbuild" || true)"
+            printf '%s\n' "${out:-  clean}"
+            if printf '%s' "${out}" | grep -q ': E:'; then
               echo "::error::namcap reported errors in $(dirname "$pkgbuild")"
               status=1
             fi
