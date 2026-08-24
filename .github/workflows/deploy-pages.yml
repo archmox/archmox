@@ -93,10 +93,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: |
-            pages deploy website/${{ matrix.subdomain }}/ \
-              --project-name=archmox-${{ matrix.subdomain }} \
-              --branch=main
+          command: pages deploy website/${{ matrix.subdomain }} --project-name=archmox-${{ matrix.subdomain }} --branch=main
 
   notify:
     name: Notify Deployment Status
