@@ -125,6 +125,7 @@ jobs:
         env:
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso --file iso-files/archmox.iso
 
       - name: Upload checksum to R2
@@ -133,6 +134,7 @@ jobs:
         env:
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso.sha256 --file iso-files/archmox.iso.sha256
 
       - name: Update latest symlink
@@ -141,6 +143,7 @@ jobs:
         env:
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: r2 object put archmox-cdn-isos/archmox-latest.iso --file iso-files/archmox.iso
 
   create-release-assets:
