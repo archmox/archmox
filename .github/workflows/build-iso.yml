@@ -98,6 +98,8 @@ jobs:
     needs: build-iso
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    env:
+      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
     steps:
       - name: Download ISO
         uses: actions/download-artifact@v4
@@ -105,23 +107,38 @@ jobs:
           name: archmox-iso
           path: iso-files/
 
+      - name: Skip (Cloudflare API token not configured)
+        if: env.CF_ENABLED != 'true'
+        run: |
+          echo "::warning::CLOUDFLARE_API_TOKEN is not set;"
+          echo "::warning::skipping CDN upload. Add the repo secret to enable."
+
+      - name: Normalize ISO filenames
+        if: env.CF_ENABLED == 'true'
+        run: |
+          mv iso-files/*.iso iso-files/archmox.iso
+          mv iso-files/*.sha256 iso-files/archmox.iso.sha256 2>/dev/null || true
+
       - name: Upload to R2
+        if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: |
-            r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso \
-              --file iso-files/*.iso
-            r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso.sha256 \
-              --file iso-files/*.sha256
+          command: r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso --file iso-files/archmox.iso
+
+      - name: Upload checksum to R2
+        if: env.CF_ENABLED == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso.sha256 --file iso-files/archmox.iso.sha256
 
       - name: Update latest symlink
+        if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: |
-            r2 object put archmox-cdn-isos/archmox-latest.iso \
-              --file iso-files/*.iso
+          command: r2 object put archmox-cdn-isos/archmox-latest.iso --file iso-files/archmox.iso
 
   create-release-assets:
     name: Attach ISO to Release
