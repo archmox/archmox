@@ -79,18 +79,6 @@ jobs:
           echo "::warning::CLOUDFLARE_API_KEY / CLOUDFLARE_EMAIL / CLOUDFLARE_ACCOUNT_ID are not set;"
           echo "::warning::skipping Cloudflare Pages deployment. Add repo secrets to enable."
 
-      - name: Diagnose auth resolution (temporary)
-        if: env.CF_ENABLED == 'true'
-        env:
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          echo "== wrangler 3.90 =="
-          npx -y wrangler@3.90.0 whoami || true
-          echo "== wrangler 4 =="
-          npx -y wrangler@4 whoami || true
-
       - name: Deploy to Cloudflare Pages
         if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
@@ -118,13 +106,14 @@ jobs:
       - name: Deploy ${{ matrix.subdomain }} subdomain
         if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: 3.90.0
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy website/${{ matrix.subdomain }} --project-name=archmox-${{ matrix.subdomain }} --branch=main
         env:
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        with:
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy website/${{ matrix.subdomain }} --project-name=archmox-${{ matrix.subdomain }} --branch=main
 
   notify:
     name: Notify Deployment Status
