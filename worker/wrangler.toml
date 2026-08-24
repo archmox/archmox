@@ -1,19 +1,11 @@
 name = "archmox-api"
 main = "index.js"
 compatibility_date = "2026-06-13"
-
-# Route config: archmox subdomains
-# PVE and Docs serve directly from Pages (working custom domains)
-# PMG, CDN, PBS proxy through Worker to pages.dev URLs (glitched custom domains)
-routes = [
-  { pattern = "archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
-  { pattern = "pve.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
-  { pattern = "docs.archmox.acreetionos.org/api/*", zone_name = "acreetionos.org" },
-  # Full subdomain routes for glitched Pages custom domains
-  { pattern = "pmg.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
-  { pattern = "cdn.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
-  { pattern = "pbs.archmox.acreetionos.org/*", zone_name = "acreetionos.org" },
-]
+# Served via https://archmox-api.spivajohnathan64.workers.dev.
+# Zone routes are intentionally NOT configured: *.archmox.acreetionos.org is
+# grey-clouded and terminates on nginx (see infra/nginx/), which proxies
+# /api/* and /cdn/* to this worker.
+workers_dev = true
 
 # KV for newsletter subscribers, fleet health, security reports
 kv_namespaces = [
