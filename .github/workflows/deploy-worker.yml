@@ -121,13 +121,16 @@ jobs:
       - name: Smoke test
         if: env.CF_ENABLED == 'true'
         run: |
-          sleep 10
-          RESP=$(curl -s --max-time 20 https://archmox-api.spivajohnathan64.workers.dev/api/health)
-          echo "$RESP"
-          grep -q '"status":"ok"' <<<"$RESP" || {
-            echo "::error::Worker health check failed after deploy"
-            exit 1
-          }
+          # workers.dev route re-enablement propagates asynchronously;
+          # poll instead of failing on first strike
+          for i in $(seq 1 6); do
+            sleep 10
+            RESP=$(curl -s --max-time 20 https://archmox-api.spivajohnathan64.workers.dev/api/health || true)
+            echo "attempt $i: $RESP"
+            grep -q '"status":"ok"' <<<"$RESP" && exit 0
+          done
+          echo "::error::Worker health check failed after deploy"
+          exit 1
 
   notify:
     name: Notify Deployment Status
