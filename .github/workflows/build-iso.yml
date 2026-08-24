@@ -99,7 +99,7 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     env:
-      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_KEY != '' && secrets.CLOUDFLARE_EMAIL != '' }}
     steps:
       - name: Download ISO
         uses: actions/download-artifact@v4
@@ -110,7 +110,7 @@ jobs:
       - name: Skip (Cloudflare API token not configured)
         if: env.CF_ENABLED != 'true'
         run: |
-          echo "::warning::CLOUDFLARE_API_TOKEN is not set;"
+          echo "::warning::CLOUDFLARE_API_KEY / CLOUDFLARE_EMAIL are not set;"
           echo "::warning::skipping CDN upload. Add the repo secret to enable."
 
       - name: Normalize ISO filenames
@@ -122,22 +122,25 @@ jobs:
       - name: Upload to R2
         if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
           command: r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso --file iso-files/archmox.iso
 
       - name: Upload checksum to R2
         if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
           command: r2 object put archmox-cdn-isos/archmox-${{ env.ARCHMOX_VERSION }}.iso.sha256 --file iso-files/archmox.iso.sha256
 
       - name: Update latest symlink
         if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
           command: r2 object put archmox-cdn-isos/archmox-latest.iso --file iso-files/archmox.iso
 
   create-release-assets:

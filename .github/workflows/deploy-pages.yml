@@ -68,7 +68,7 @@ jobs:
     needs: build-site
     runs-on: ubuntu-latest
     env:
-      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_KEY != '' && secrets.CLOUDFLARE_EMAIL != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     permissions:
       contents: read
       deployments: write
@@ -76,14 +76,16 @@ jobs:
       - name: Skip (Cloudflare secrets not configured)
         if: env.CF_ENABLED != 'true'
         run: |
-          echo "::warning::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are not set;"
+          echo "::warning::CLOUDFLARE_API_KEY / CLOUDFLARE_EMAIL / CLOUDFLARE_ACCOUNT_ID are not set;"
           echo "::warning::skipping Cloudflare Pages deployment. Add repo secrets to enable."
 
       - name: Deploy to Cloudflare Pages
         if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy website/ --project-name=archmox --branch=main
 
@@ -92,7 +94,7 @@ jobs:
     needs: build-site
     runs-on: ubuntu-latest
     env:
-      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+      CF_ENABLED: ${{ secrets.CLOUDFLARE_API_KEY != '' && secrets.CLOUDFLARE_EMAIL != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     strategy:
       matrix:
         subdomain: [pve, pbs, pmg, cdn]
@@ -102,8 +104,10 @@ jobs:
       - name: Deploy ${{ matrix.subdomain }} subdomain
         if: env.CF_ENABLED == 'true'
         uses: cloudflare/wrangler-action@v3
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy website/${{ matrix.subdomain }} --project-name=archmox-${{ matrix.subdomain }} --branch=main
 
