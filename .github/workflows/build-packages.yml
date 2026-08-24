@@ -35,13 +35,15 @@ jobs:
   lint-pkgbuilds:
     name: Lint PKGBUILDs
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Install namcap
         run: |
-          sudo apt-get update
-          sudo apt-get install -y namcap
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm namcap
 
       - name: Lint all PKGBUILDs
         run: |

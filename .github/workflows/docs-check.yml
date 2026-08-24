@@ -27,40 +27,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install lychee
-        run: |
-          curl -sL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-unknown-linux-gnu.tar.gz | tar xz
-          sudo mv lychee /usr/local/bin/
-
       - name: Check documentation links
         id: lychee
-        continue-on-error: true
-        run: |
-          lychee \
-            --verbose \
-            --no-progress \
-            --format detailed \
-            --cache \
-            --max-cache-age 1d \
-            --timeout 30 \
-            --retry-wait-time 5 \
-            --max-retries 3 \
-            --exclude "localhost" \
-            --exclude "127.0.0.1" \
-            --exclude "git.proxmox.com" \
-            --exclude "pve.proxmox.com" \
-            --exclude "pbs.proxmox.com" \
-            --exclude "pmg.proxmox.com" \
-            --exclude "access.redhat.com" \
-            --exclude "wiki.archlinux.org" \
-            --exclude "github.com/archmox" \
-            --exclude "acreetionos.org" \
-            --exclude "discord.acreetionos.org" \
-            --exclude "*.acreetionos.org" \
-            docs/ \
-            website/ \
-            .github/profile/README.md \
-            > lychee-report.txt 2>&1 || true
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose --no-progress --format detailed --cache
+            --max-cache-age 1d --timeout 30 --retry-wait-time 5 --max-retries 3
+            --exclude localhost --exclude 127.0.0.1
+            --exclude "git.proxmox.com" --exclude "pve.proxmox.com"
+            --exclude "pbs.proxmox.com" --exclude "pmg.proxmox.com"
+            --exclude "access.redhat.com" --exclude "wiki.archlinux.org"
+            --exclude "github.com/archmox" --exclude "*.acreetionos.org"
+            './docs/**/*.md'
+            './website/**/*.html'
+            '.github/profile/README.md'
+          output: lychee-report.txt
+          fail: false
 
       - name: Display lychee report
         run: |
