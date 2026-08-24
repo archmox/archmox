@@ -4,8 +4,8 @@
 #============================================================================
 set -euo pipefail
 
-readonly SELF="$(realpath "$0")"
-readonly ROOT="$(realpath "${SELF}/../..")"
+ROOT="$(realpath "$(dirname "$(realpath "$0")")/../..")"
+readonly ROOT
 readonly LOGDIR="${ROOT}/logs"
 readonly BUILDDIR="${ROOT}/build"
 readonly REPODIR="${ROOT}/repo"

@@ -1,0 +1,15 @@
+# Build artifacts
+/repo/
+/logs/
+/build/
+/out/
+
+# Packaging byproducts
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.sig
+src/
+
+# Editors / OS
+*.swp
+.DS_Store

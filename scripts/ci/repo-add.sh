@@ -4,8 +4,8 @@
 #============================================================================
 set -euo pipefail
 
-readonly SELF="$(realpath "$0")"
-readonly ROOT="$(realpath "${SELF}/../..")"
+ROOT="$(realpath "$(dirname "$(realpath "$0")")/../..")"
+readonly ROOT
 readonly REPODIR="${ROOT}/repo"
 readonly DBNAME="archmox"
 readonly DBFILE="${REPODIR}/${DBNAME}.db.tar.zst"

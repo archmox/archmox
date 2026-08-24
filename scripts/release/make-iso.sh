@@ -4,11 +4,11 @@
 #============================================================================
 set -euo pipefail
 
-readonly SELF="$(realpath "$0")"
-readonly ROOT="$(realpath "${SELF}/../..")"
+ROOT="$(realpath "$(dirname "$(realpath "$0")")/../..")"
+readonly ROOT
 readonly ISODIR="${ROOT}/iso"
 readonly BUILDDIR="${ROOT}/build/iso"
-readonly OUTDIR="${ROOT}/out"
+OUTDIR="${ROOT}/out"
 readonly LOGDIR="${ROOT}/logs"
 
 # Colors
@@ -148,24 +148,37 @@ EOF
   fi
 
   # Ensure essential archmox metapackages are installed in the live env,
-  # but only when we actually have local packages to serve them from;
-  # otherwise mkarchiso aborts on unresolvable packages.
-  if [[ "${pkg_count}" -gt 0 && -f "${pkglist_file}" ]]; then
-    cat >> "${pkglist_file}" <<EOF
-archmox-proxmox-ve
-archmox-pve-manager
-archmox-qemu-server
-archmox-pve-container
-archmox-pve-storage
-archmox-pve-cluster
-archmox-pve-firewall
-archmox-pve-ha-manager
-archmox-proxmox-backup
-EOF
+  # but only request the ones that were actually built and only when we
+  # have a local repo to serve them from; otherwise mkarchiso aborts on
+  # unresolvable packages.
+  local wanted=(
+    archmox-proxmox-ve
+    archmox-pve-manager
+    archmox-qemu-server
+    archmox-pve-container
+    archmox-pve-storage
+    archmox-pve-cluster
+    archmox-pve-firewall
+    archmox-pve-ha-manager
+    archmox-proxmox-backup
+  )
+
+  local built=()
+  local want
+  for want in "${wanted[@]}"; do
+    if compgen -G "${repo_dir}/${want}-*.pkg.tar.zst" >/dev/null; then
+      built+=("${want}")
+    else
+      warn "Metapackage ${want} not built; excluding from ISO package list"
+    fi
+  done
+
+  if [[ ${#built[@]} -gt 0 && -f "${pkglist_file}" ]]; then
+    printf '%s\n' "${built[@]}" >> "${pkglist_file}"
     # De-duplicate while preserving order
     awk 'NF && !seen[$0]++' "${pkglist_file}" > "${pkglist_file}.tmp" \
       && mv "${pkglist_file}.tmp" "${pkglist_file}"
-  elif [[ "${pkg_count}" -eq 0 ]]; then
+  else
     warn "No Archmox packages available; building a plain live ISO."
   fi
 }

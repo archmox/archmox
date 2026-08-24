@@ -53,6 +53,7 @@ jobs:
           name: iso-packages
           path: repo/
           retention-days: 7
+          if-no-files-found: error
 
   build-iso:
     name: Build Installation ISO
