@@ -79,47 +79,6 @@ jobs:
             console.log('Worker structure validation passed');
           "
 
-  deploy-production:
-    name: Deploy to Cloudflare Workers (Production)
-    needs: [lint, test]
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy worker/index.js --name=archmox-api --compatibility-date=2026-06-13
-
-      - name: Verify deployment
-        run: |
-          sleep 10
-          curl -s -o /dev/null -w "%{http_code}" \
-            https://archmox.acreetionos.org/api/health || true
-
-  deploy-secrets:
-    name: Set Worker Secrets
-    needs: deploy-production
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set secrets
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          secrets: |
-            DISCORD_WEBHOOK
-            SECURITY_WEBHOOK
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          SECURITY_WEBHOOK: ${{ secrets.SECURITY_WEBHOOK }}
-
   deploy:
     name: Deploy Worker to Cloudflare
     needs: [lint, test]
