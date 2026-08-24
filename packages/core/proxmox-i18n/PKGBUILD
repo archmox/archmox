@@ -13,15 +13,23 @@ source=("git+https://git.proxmox.com/git/proxmox-i18n.git")
 # Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
+prepare() {
+  cd "${srcdir}/proxmox-i18n"
+  # Port shim: upstream Makefile includes Debian's dpkg metadata files,
+  # which do not exist on Arch. Provide the values it would have read.
+  sed -i 's|^include /usr/share/dpkg/pkg-info.mk|DEB_SOURCE := proxmox-i18n\nDEB_VERSION := '"${pkgver}-${pkgrel}"'|' Makefile
+}
+
 build() {
   cd "${srcdir}/proxmox-i18n"
-  make
+  make DEB_SOURCE="${pkgname}" DEB_VERSION="${pkgver}-${pkgrel}"
 }
 
 package() {
   cd "${srcdir}/proxmox-i18n"
-  make DESTDIR="${pkgdir}" install
+  make DESTDIR="${pkgdir}" install \
+    DEB_SOURCE="${pkgname}" DEB_VERSION="${pkgver}-${pkgrel}"
   if [[ -f LICENSE ]]; then
     install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-fi
+  fi
 }

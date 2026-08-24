@@ -136,6 +136,31 @@ run_as_builder() {
   fi
 }
 
+# Register ${REPODIR} as a pacman repository so that subsequently built
+# packages can resolve their archmox-* dependencies via makepkg -s.
+# Must only be called once the repo database exists.
+wire_local_repo() {
+  if ! is_root; then
+    warn "Not running as root: archmox-* dependencies cannot resolve from ${REPODIR}"
+    return 0
+  fi
+  if grep -q '^\[archmox\]' /etc/pacman.conf 2>/dev/null; then
+    pacman -Sy --noconfirm >/dev/null 2>&1 \
+      || warn "pacman -Sy failed; archmox-* dependencies may not resolve"
+    return 0
+  fi
+  log "Registering local repository ${REPODIR} in /etc/pacman.conf..."
+  cat >> /etc/pacman.conf <<EOF
+
+[archmox]
+SigLevel = Optional TrustAll
+Server = file://${REPODIR}
+EOF
+  pacman -Sy --noconfirm >/dev/null 2>&1 \
+    || warn "pacman -Sy failed; archmox-* dependencies may not resolve"
+}
+
+
 
 _pkgdir_to_cat() {
   local name="$1"
@@ -194,6 +219,10 @@ build_package() {
     if [[ -n "${pkgfile}" ]]; then
       mkdir -p "${REPODIR}"
       cp "${pkgfile}" "${REPODIR}/"
+      # Publish immediately so later packages can depend on this one
+      repo-add --new "${REPODIR}/archmox.db.tar.zst" \
+        "${REPODIR}/$(basename "${pkgfile}")" >/dev/null
+      wire_local_repo
       log "${pkgname} built successfully → ${REPODIR}/$(basename "${pkgfile}")"
     else
       warn "${pkgname}: no .pkg.tar.zst found (might be a metapackage)"
