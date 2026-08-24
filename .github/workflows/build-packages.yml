@@ -32,8 +32,18 @@ env:
   MAKEFLAGS: '-j$(nproc)'
 
 jobs:
+  tests:
+    name: Repository Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit + integration tests
+        run: bash tests/run-tests.sh all
+
   lint-pkgbuilds:
     name: Lint PKGBUILDs
+    needs: tests
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
