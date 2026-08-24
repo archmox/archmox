@@ -44,7 +44,7 @@ EOF
 
 check_dependencies() {
   local missing=()
-  for cmd in mkarchiso pacman makepkg; do
+  for cmd in mkarchiso pacman makepkg rsync; do
     if ! command -v "${cmd}" &>/dev/null; then
       missing+=("${cmd}")
     fi
