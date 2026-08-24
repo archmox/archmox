@@ -25,7 +25,6 @@ networkmanager
 dhcpcd
 bind
 dnsmasq
-bridge-utils
 openvswitch
 ethtool
 iproute2
@@ -49,9 +48,6 @@ gptfdisk
 util-linux
 cifs-utils
 nfs-utils
-zfs-utils-dkms
-zfs-dkms
-ceph-libs
 
 # Virtualization
 qemu-full
@@ -59,11 +55,9 @@ qemu-audio-alsa
 qemu-audio-pa
 qemu-audio-spice
 qemu-block-iscsi
-qemu-block-rbd
 qemu-desktop
 qemu-hw-usb-redirect
 qemu-ui-spice-core
-qemu-ui-vnc
 qemu-vhost-user-gpu
 lxc
 lxcfs
@@ -74,9 +68,7 @@ dmidecode
 seabios
 
 # Clustering
-corosync
 libqb
-watchdog
 
 # Perl runtime for the PVE stack
 perl
@@ -93,15 +85,11 @@ perl-xml-libxml
 perl-xml-simple
 perl-cgi
 perl-crypt-openssl-rsa
-perl-crypt-openssl-x509
-perl-authen-pam
 perl-ldap
 perl-template-toolkit
 perl-datetime
-perl-db-file
 perl-file-slurp
 perl-filesys-df
-perl-linux-inotify2
 perl-mailtools
 perl-mime-lite
 perl-string-shellquote
@@ -121,7 +109,6 @@ postgresql-libs
 # Web server & mail
 nginx
 postfix
-procmail
 
 # Monitoring & logging
 logrotate
@@ -132,9 +119,7 @@ iotop
 iftop
 
 # Misc utilities
-snapraid
 graphviz
-dtach
 screen
 tmux
 rsync

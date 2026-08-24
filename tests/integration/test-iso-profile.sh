@@ -60,6 +60,21 @@ done
 [[ -f "${ROOT}/iso/airootfs/etc/systemd/system/archmox-firstboot.service" ]] || \
   fail "archmox-firstboot.service missing"
 
+# Every package must exist in official Arch repos; mkarchiso hard-fails
+# otherwise after minutes of work. Validate against a live container when
+# docker is available (skipped otherwise).
+pkglist="$(grep -vE '^\s*(#|$)' "${PROFILE}/packages.x86_64")"
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+  invalid="$(printf '%s\n' "${pkglist}" > /tmp/archmox-pkglist.$$;
+    docker run --rm -v /tmp/archmox-pkglist.$$:/tmp/pkgs:ro archlinux:latest bash -c \
+      'pacman -Sy -q >/dev/null 2>&1; pacman -Sp --print-format "%n" $(grep -vE "^\s*(#|$)" /tmp/pkgs) 2>&1 >/dev/null' \
+    | grep 'target not found' || true)"
+  rm -f /tmp/archmox-pkglist.$$
+  [[ -z "${invalid}" ]] || fail "packages not in official repos: ${invalid}"
+else
+  echo "  (docker unavailable — skipping repo-validity check)"
+fi
+
 if [[ ${errors} -gt 0 ]]; then
   echo "ISO profile FAILED with ${errors} error(s)."
   exit 1
