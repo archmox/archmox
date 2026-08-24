@@ -9,18 +9,21 @@ url="https://archmox.acreetionos.org"
 license=('GPL2' 'LGPL2.1')
 depends=('glibc' 'libxml2' 'libqb' 'corosync' 'pacemaker' 'nss')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/redhat-cluster-pve.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/redhat-cluster-pve"
+  cd "${srcdir}/redhat-cluster-pve"
   ./autogen.sh
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/redhat-cluster-pve"
+  cd "${srcdir}/redhat-cluster-pve"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

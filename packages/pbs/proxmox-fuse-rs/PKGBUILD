@@ -9,21 +9,24 @@ url="https://archmox.acreetionos.org"
 license=('AGPL3')
 depends=('glibc' 'gcc-libs' 'fuse3' 'libsodium' 'zstd' 'lz4')
 makedepends=('rust' 'cargo' 'pkg-config' 'make' 'fuse3')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/proxmox-fuse.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-fuse-rs"
-  cargo build --release --frozen
+  cd "${srcdir}/proxmox-fuse"
+  cargo build --release
 }
 
 check() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-fuse-rs"
-  cargo test --release --frozen
+  cd "${srcdir}/proxmox-fuse"
+  cargo test --release
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-fuse-rs"
-  cargo install --root="${pkgdir}/usr" --frozen
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd "${srcdir}/proxmox-fuse"
+  cargo install --locked --root="${pkgdir}/usr" --path .
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

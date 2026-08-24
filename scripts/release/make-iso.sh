@@ -50,8 +50,8 @@ check_dependencies() {
     fi
   done
 
-  # Check for archiso
-  if ! pacman -Qi archiso &>/dev/null 2>&1; then
+  # Check for archiso (mkarchiso comes from it, but be explicit)
+  if pacman -Qi archiso &>/dev/null; then :; else
     missing+=("archiso (package)")
   fi
 
@@ -72,29 +72,44 @@ prepare_build_directory() {
   mkdir -p "${BUILDDIR}" "${OUTDIR}" "${LOGDIR}"
 }
 
+build_packages() {
+  if [[ ! -d "${ROOT}/repo" ]] || [[ -z "$(find "${ROOT}/repo" -maxdepth 1 -name '*.pkg.tar.zst' -print -quit 2>/dev/null)" ]]; then
+    warn "No packages found in ${ROOT}/repo. Building packages first..."
+    bash "${ROOT}/scripts/ci/build-all.sh" --skip-failures=true
+  fi
+}
+
 setup_archiso_profile() {
+  local label="${1:-}"
+  local version="${ARCHMOX_VERSION:-$(date +%Y%m%d)}"
+
   log "Setting up archiso profile from ${ISODIR}/archiso..."
 
-  # Copy the archiso profile to the build directory
-  if [[ -d "${BUILDDIR}/archlive" ]]; then
-    rm -rf "${BUILDDIR}/archlive"
-  fi
+  rm -rf "${BUILDDIR}/archlive"
   cp -a "${ISODIR}/archiso" "${BUILDDIR}/archlive"
 
-  # Generate version file
-  local version="${ARCHMOX_VERSION:-$(date +%Y%m%d)}"
-  echo "${version}" > "${BUILDDIR}/archlive/airootfs/root/.archmox_version"
-
-  # Copy airootfs customization if present
+  # Overlay airootfs customizations on top of the profile defaults
   if [[ -d "${ISODIR}/airootfs" ]]; then
     rsync -a "${ISODIR}/airootfs/" "${BUILDDIR}/archlive/airootfs/"
   fi
 
-  # Set ISO volume label
-  local label="${1:-ARCHMOX_${version}}"
-  sed -i "s/^iso_label=.*\$/iso_label=\"${label}\"/" \
-    "${BUILDDIR}/archlive/build.sh" 2>/dev/null || true
-  echo "${label}" > "${BUILDDIR}/archlive/iso_label"
+  # Stamp version information into the image
+  cat > "${BUILDDIR}/archlive/airootfs/etc/archmox-release" <<EOF
+NAME="Archmox"
+ID=archmox
+PRETTY_NAME="Archmox ${version} (Proxmox stack on Arch Linux)"
+VERSION_ID="${version}"
+HOME_URL="https://archmox.acreetionos.org"
+SUPPORT_URL="https://archmox.acreetionos.org/support"
+BUG_REPORT_URL="https://github.com/archmox/archmox/issues"
+EOF
+
+  # Apply overrides via environment consumed by profiledef.sh
+  export ARCHMOX_VERSION="${version}"
+  if [[ -n "${label}" ]]; then
+    sed -i "s|^iso_label=.*\$|iso_label=\"${label}\"|" \
+      "${BUILDDIR}/archlive/profiledef.sh"
+  fi
 }
 
 include_packages() {
@@ -102,12 +117,9 @@ include_packages() {
 
   local repo_dir="${ROOT}/repo"
   local pacman_conf="${BUILDDIR}/archlive/pacman.conf"
+  local pkglist_file="${BUILDDIR}/archlive/packages.x86_64"
 
-  if [[ ! -d "${repo_dir}" ]]; then
-    warn "No repo directory found at ${repo_dir}. Building packages first..."
-    bash "${ROOT}/scripts/ci/build-all.sh"
-  fi
-
+  mkdir -p "${repo_dir}"
   local pkg_count
   pkg_count="$(find "${repo_dir}" -maxdepth 1 -name '*.pkg.tar.zst' -type f | wc -l)"
   info "Found ${pkg_count} packages to include"
@@ -117,17 +129,17 @@ include_packages() {
     local airootfs_repo="${BUILDDIR}/archlive/airootfs/opt/archmox-repo"
     mkdir -p "${airootfs_repo}"
 
-    cp "${repo_dir}"/*.pkg.tar.zst "${airootfs_repo}/" 2>/dev/null || true
-    if ls "${repo_dir}"/*.sig &>/dev/null 2>&1; then
-      cp "${repo_dir}"/*.sig "${airootfs_repo}/" 2>/dev/null || true
+    cp "${repo_dir}"/*.pkg.tar.zst "${airootfs_repo}/"
+    if compgen -G "${repo_dir}/*.sig" >/dev/null; then
+      cp "${repo_dir}"/*.sig "${airootfs_repo}/" || true
     fi
 
     # Create repo database for the offline repo
     repo-add "${airootfs_repo}/archmox.db.tar.zst" \
-      "${airootfs_repo}"/*.pkg.tar.zst 2>/dev/null || true
+      "${airootfs_repo}"/*.pkg.tar.zst >/dev/null
 
     # Add the local repo to the archiso pacman.conf
-    cat >> "${pacman_conf}" <<-EOF
+    cat >> "${pacman_conf}" <<EOF
 
 [archmox]
 SigLevel = Optional TrustAll
@@ -135,21 +147,26 @@ Server = file:///opt/archmox-repo
 EOF
   fi
 
-  # Ensure essential packages are in the package list
-  local pkglist_file="${BUILDDIR}/archlive/packages.x86_64"
-  if [[ -f "${pkglist_file}" ]]; then
-    {
-      echo "archmox-proxmox-ve"
-      echo "archmox-pve-manager"
-      echo "archmox-qemu-server"
-      echo "archmox-pve-container"
-      echo "archmox-pve-storage"
-      echo "archmox-pve-cluster"
-      echo "archmox-pve-firewall"
-      echo "archmox-pve-ha-manager"
-      echo "archmox-proxmox-backup"
-      echo "proxmox-archive-keyring"
-    } >> "${pkglist_file}"
+  # Ensure essential archmox metapackages are installed in the live env,
+  # but only when we actually have local packages to serve them from;
+  # otherwise mkarchiso aborts on unresolvable packages.
+  if [[ "${pkg_count}" -gt 0 && -f "${pkglist_file}" ]]; then
+    cat >> "${pkglist_file}" <<EOF
+archmox-proxmox-ve
+archmox-pve-manager
+archmox-qemu-server
+archmox-pve-container
+archmox-pve-storage
+archmox-pve-cluster
+archmox-pve-firewall
+archmox-pve-ha-manager
+archmox-proxmox-backup
+EOF
+    # De-duplicate while preserving order
+    awk 'NF && !seen[$0]++' "${pkglist_file}" > "${pkglist_file}.tmp" \
+      && mv "${pkglist_file}.tmp" "${pkglist_file}"
+  elif [[ "${pkg_count}" -eq 0 ]]; then
+    warn "No Archmox packages available; building a plain live ISO."
   fi
 }
 
@@ -161,7 +178,6 @@ build_iso() {
     "${BUILDDIR}/archlive" 2>&1 | tee "${LOGDIR}/mkarchiso.log"; then
     log "ISO built successfully!"
     info "Output: ${OUTDIR}"
-    # Show the generated ISO file
     ls -lh "${OUTDIR}"/*.iso 2>/dev/null || true
   else
     error "ISO build failed. Check ${LOGDIR}/mkarchiso.log"
@@ -170,14 +186,16 @@ build_iso() {
 }
 
 post_processing() {
-  # Compute checksums for the ISO
+  # Compute checksums for the newest ISO in the output dir
   local iso_file
-  iso_file="$(ls -t "${OUTDIR}"/*.iso 2>/dev/null | head -1)"
+  iso_file="$(ls -t "${OUTDIR}"/*.iso 2>/dev/null | head -1 || true)"
   if [[ -n "${iso_file}" ]]; then
     log "Computing checksums..."
-    cd "${OUTDIR}"
-    sha256sum "$(basename "${iso_file}")" > "${iso_file}.sha256"
-    md5sum "$(basename "${iso_file}")" > "${iso_file}.md5"
+    (
+      cd "${OUTDIR}"
+      sha256sum "$(basename "${iso_file}")" > "$(basename "${iso_file}").sha256"
+      md5sum "$(basename "${iso_file}")" > "$(basename "${iso_file}").md5"
+    )
     log "Checksums written."
     cat "${iso_file}.sha256"
   fi
@@ -206,12 +224,14 @@ main() {
   check_dependencies
   prepare_build_directory "${clean}"
 
-  if [[ "${skip_build}" == false ]] && [[ "${clean}" == true ]]; then
+  if [[ "${skip_build}" == false ]]; then
     log "Building all packages before ISO generation..."
-    bash "${ROOT}/scripts/ci/build-all.sh"
+    build_packages
+  else
+    info "Skipping package build (--no-build)"
   fi
 
-  setup_archiso_profile "${label:-}"
+  setup_archiso_profile "${label}"
   include_packages
   build_iso
   post_processing

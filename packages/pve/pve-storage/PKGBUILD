@@ -15,16 +15,19 @@ depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-firewall
          'cifs-utils' 'nfs-utils' 'glusterfs' 'smbclient'
          'proxmox-backup-client' 'pve-sheepdog')
 makedepends=('make' 'gcc' 'perl-module-build')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/pve-storage.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-storage"
+  cd "${srcdir}/pve-storage"
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-storage"
+  cd "${srcdir}/pve-storage"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

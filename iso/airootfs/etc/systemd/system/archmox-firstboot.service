@@ -1,0 +1,14 @@
+[Unit]
+Description=Archmox first-boot initialization
+ConditionPathExists=!/var/lib/archmox/.firstboot-done
+After=local-fs.target network.target
+Before=pve-cluster.service pvedaemon.service pveproxy.service
+
+[Service]
+Type=oneshot
+ExecStart=/root/.archmox-firstboot.sh
+RemainAfterExit=yes
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

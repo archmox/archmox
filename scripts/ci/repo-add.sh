@@ -20,6 +20,7 @@ readonly NC='\033[0m'
 log()   { echo -e "${GREEN}[REPO]${NC} $*"; }
 warn()  { echo -e "${YELLOW}[WARN]${NC} $*" >&2; }
 info()  { echo -e "${CYAN}[INFO]${NC} $*"; }
+error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
 usage() {
   cat <<EOF
@@ -108,9 +109,14 @@ main() {
 
   log "Adding packages to repository '${DBNAME}'..."
 
-  # Add all .pkg.tar.zst files (excluding signature files)
-  # repo-add will automatically find and include .sig files
-  repo-add --new --verify --sign \
+  # Add all .pkg.tar.zst files (excluding signature files).
+  # Only pass signing/verification flags when a key is available; CI runs
+  # are typically unsigned.
+  local repo_args=(--new)
+  if [[ "${sign}" == true && -n "${gpg_key}" ]]; then
+    repo_args+=(--verify --sign --key "${gpg_key}")
+  fi
+  repo-add "${repo_args[@]}" \
     "${DBFILE}" \
     "${REPODIR}"/*.pkg.tar.zst
 

@@ -9,18 +9,21 @@ url="https://archmox.acreetionos.org"
 license=('BSD')
 depends=('glibc' 'libqb' 'libxml2' 'libsasl' 'lzo' 'nss')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://github.com/corosync/corosync.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/corosync-pve"
+  cd "${srcdir}/corosync"
   ./autogen.sh
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/corosync-pve"
+  cd "${srcdir}/corosync"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

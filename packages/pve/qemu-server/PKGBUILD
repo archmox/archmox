@@ -16,23 +16,26 @@ depends=('archmox-pve-common' 'archmox-pve-guest-common' 'archmox-pve-storage'
          'perl-net-ip' 'perl-io-socket-ssl' 'perl-xml-libxml'
          'perl-filesys-df' 'perl-string-shellquote'
          'perl-linux-inotify2' 'dmidecode' 'seabios' 'ovmf' 'swtpm'
-         'proxmox-archive-keyring')
+         )
 makedepends=('make' 'gcc' 'perl-module-build')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/qemu-server.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/qemu-server"
+  cd "${srcdir}/qemu-server"
   make
 }
 
 check() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/qemu-server"
+  cd "${srcdir}/qemu-server"
   make test
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/qemu-server"
+  cd "${srcdir}/qemu-server"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

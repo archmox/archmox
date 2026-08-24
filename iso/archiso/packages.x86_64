@@ -1,0 +1,145 @@
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+# packages.x86_64 — packages installed into the Archmox live/ISO environment
+#
+# Base system
+base
+base-devel
+linux-lts
+linux-lts-headers
+linux-firmware
+amd-ucode
+intel-ucode
+grub
+efibootmgr
+sudo
+openssh
+vim
+nano
+git
+wget
+curl
+
+# Networking
+networkmanager
+dhcpcd
+bind
+dnsmasq
+bridge-utils
+openvswitch
+ethtool
+iproute2
+iptables-nft
+nftables
+conntrack-tools
+tcpdump
+traceroute
+
+# Storage
+lvm2
+btrfs-progs
+xfsprogs
+e2fsprogs
+dosfstools
+ntfs-3g
+exfatprogs
+mdadm
+parted
+gptfdisk
+util-linux
+cifs-utils
+nfs-utils
+zfs-utils-dkms
+zfs-dkms
+ceph-libs
+
+# Virtualization
+qemu-full
+qemu-audio-alsa
+qemu-audio-pa
+qemu-audio-spice
+qemu-block-iscsi
+qemu-block-rbd
+qemu-desktop
+qemu-hw-usb-redirect
+qemu-ui-spice-core
+qemu-ui-vnc
+qemu-vhost-user-gpu
+lxc
+lxcfs
+libvirt
+edk2-ovmf
+swtpm
+dmidecode
+seabios
+
+# Clustering
+corosync
+libqb
+watchdog
+
+# Perl runtime for the PVE stack
+perl
+perl-json
+perl-libwww
+perl-http-message
+perl-http-daemon
+perl-io-socket-ssl
+perl-net-ip
+perl-net-dns
+perl-net-ssleay
+perl-uri
+perl-xml-libxml
+perl-xml-simple
+perl-cgi
+perl-crypt-openssl-rsa
+perl-crypt-openssl-x509
+perl-authen-pam
+perl-ldap
+perl-template-toolkit
+perl-datetime
+perl-db-file
+perl-file-slurp
+perl-filesys-df
+perl-linux-inotify2
+perl-mailtools
+perl-mime-lite
+perl-string-shellquote
+perl-libintl-perl
+perl-module-build
+
+# Rust / JS toolchains (needed by source-built archmox packages)
+rust
+cargo
+nodejs
+npm
+
+# Database
+postgresql
+postgresql-libs
+
+# Web server & mail
+nginx
+postfix
+procmail
+
+# Monitoring & logging
+logrotate
+lm_sensors
+smartmontools
+htop
+iotop
+iftop
+
+# Misc utilities
+snapraid
+graphviz
+dtach
+screen
+tmux
+rsync
+sshfs
+pv
+dialog
+squashfs-tools
+arch-install-scripts

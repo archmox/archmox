@@ -53,6 +53,7 @@ PVE_PKGS=(
   pve-docs
   pve-installer
   pve-manager
+  pve-qemu-kvm
   proxmox-ve
 )
 
@@ -177,11 +178,20 @@ main() {
   # Parse arguments
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --skip-failures) skip_failures=true ;;
+      --skip-failures)
+        skip_failures=true
+        ;;
+      --skip-failures=*)
+        case "${1#*=}" in
+          true|yes|1) skip_failures=true ;;
+          false|no|0|"") skip_failures=false ;;
+          *) error "Invalid value for --skip-failures: ${1#*=}"; exit 1 ;;
+        esac
+        ;;
       --from) start_from="$2"; shift ;;
       --only) only_pkg="$2"; shift ;;
       --help|-h)
-        echo "Usage: $0 [--skip-failures] [--from <pkgname>] [--only <pkgname>]"
+        echo "Usage: $0 [--skip-failures[=true|false]] [--from <pkgname>] [--only <pkgname>]"
         exit 0
         ;;
       *) error "Unknown option: $1"; exit 1 ;;

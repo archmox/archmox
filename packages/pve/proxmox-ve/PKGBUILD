@@ -14,14 +14,12 @@ depends=('archmox-pve-manager' 'archmox-qemu-server' 'archmox-pve-container'
          'archmox-pve-http-server' 'archmox-pve-docs'
          'archmox-pve-edk2-firmware' 'archmox-pve-xtermjs'
          'archmox-pve-zsync' 'archmox-pve-installer'
-         'archmox-pve-lxc-syscalld' 'archmox-proxmox-ve-wallpapers')
-makedepends=()
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
-sha256sums=('SKIP')
+         'archmox-pve-lxc-syscalld')
 
 package() {
   install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
-  install -Dm644 "${srcdir}/archmox-${pkgver}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE" 2>/dev/null || \
-    echo "Proxmox VE metapackage" > "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-  echo "This package is a metapackage and does not contain any files." > "${pkgdir}/usr/share/doc/${pkgname}/README"
+  cat > "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE" <<'LICENSE'
+Archmox Proxmox VE metapackage.
+Components carry their own licenses; see each package.
+LICENSE
 }

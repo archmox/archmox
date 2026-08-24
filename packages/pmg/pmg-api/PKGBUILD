@@ -18,18 +18,21 @@ depends=('archmox-pve-common' 'archmox-pve-access-control'
          'perl-email-mime-contenttype' 'perl-email-address'
          'perl-net-server' 'perl-net-smtp-ssl'
          'postfix' 'clamav' 'spamassassin' 'dkim-milter'
-         'proxmox-archive-keyring')
+         )
 makedepends=('make' 'gcc' 'perl-module-build')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/pmg-api.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pmg/pmg-api"
+  cd "${srcdir}/pmg-api"
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pmg/pmg-api"
+  cd "${srcdir}/pmg-api"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

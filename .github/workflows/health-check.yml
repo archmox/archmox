@@ -23,6 +23,18 @@ jobs:
     outputs:
       all_healthy: ${{ steps.assess.outputs.all_healthy }}
       summary: ${{ steps.assess.outputs.summary }}
+      main_status: ${{ steps.main.outputs.status }}
+      main_ms: ${{ steps.main.outputs.ms }}
+      pve_status: ${{ steps.pve.outputs.status }}
+      pve_ms: ${{ steps.pve.outputs.ms }}
+      pbs_status: ${{ steps.pbs.outputs.status }}
+      pbs_ms: ${{ steps.pbs.outputs.ms }}
+      pmg_status: ${{ steps.pmg.outputs.status }}
+      pmg_ms: ${{ steps.pmg.outputs.ms }}
+      docs_status: ${{ steps.docs.outputs.status }}
+      docs_ms: ${{ steps.docs.outputs.ms }}
+      cdn_status: ${{ steps.cdn.outputs.status }}
+      cdn_ms: ${{ steps.cdn.outputs.ms }}
     steps:
       - name: Check main site
         id: main
@@ -165,11 +177,11 @@ jobs:
               "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
               "source": "github-actions",
               "results": {
-                "main": "${{ steps.main.outputs.status }}-${{ steps.main.outputs.ms }}ms",
-                "pve": "${{ steps.pve.outputs.status }}-${{ steps.pve.outputs.ms }}ms",
-                "pbs": "${{ steps.pbs.outputs.status }}-${{ steps.pbs.outputs.ms }}ms",
-                "pmg": "${{ steps.pmg.outputs.status }}-${{ steps.pmg.outputs.ms }}ms",
-                "docs": "${{ steps.docs.outputs.status }}-${{ steps.docs.outputs.ms }}ms",
-                "cdn": "${{ steps.cdn.outputs.status }}-${{ steps.cdn.outputs.ms }}ms"
+                "main": "${{ needs.check-fleet.outputs.main_status }}-${{ needs.check-fleet.outputs.main_ms }}ms",
+                "pve": "${{ needs.check-fleet.outputs.pve_status }}-${{ needs.check-fleet.outputs.pve_ms }}ms",
+                "pbs": "${{ needs.check-fleet.outputs.pbs_status }}-${{ needs.check-fleet.outputs.pbs_ms }}ms",
+                "pmg": "${{ needs.check-fleet.outputs.pmg_status }}-${{ needs.check-fleet.outputs.pmg_ms }}ms",
+                "docs": "${{ needs.check-fleet.outputs.docs_status }}-${{ needs.check-fleet.outputs.docs_ms }}ms",
+                "cdn": "${{ needs.check-fleet.outputs.cdn_status }}-${{ needs.check-fleet.outputs.cdn_ms }}ms"
               }
             }' || true

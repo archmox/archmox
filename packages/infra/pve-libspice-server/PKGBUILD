@@ -10,18 +10,19 @@ license=('LGPL2.1')
 depends=('glibc' 'spice-protocol' 'openssl' 'pixman' 'zlib'
          'libjpeg-turbo' 'lz4')
 makedepends=('make' 'gcc' 'pkg-config' 'meson' 'ninja' 'python')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://gitlab.freedesktop.org/spice/spice.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/pve-libspice-server"
+  cd "${srcdir}/spice"
   mkdir -p build && cd build
   meson setup --prefix=/usr --libdir=/usr/lib ..
   ninja
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/pve-libspice-server/build"
+  cd "${srcdir}/spice/build"
   DESTDIR="${pkgdir}" ninja install
   install -Dm644 ../LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

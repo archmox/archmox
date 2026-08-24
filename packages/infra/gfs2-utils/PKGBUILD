@@ -9,18 +9,21 @@ url="https://archmox.acreetionos.org"
 license=('GPL2')
 depends=('glibc' 'libuuid' 'libblkid' 'libnl' 'corosync' 'pacemaker')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/gfs2/gfs2-utils.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/gfs2-utils"
+  cd "${srcdir}/gfs2-utils"
   ./autogen.sh
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/gfs2-utils"
+  cd "${srcdir}/gfs2-utils"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

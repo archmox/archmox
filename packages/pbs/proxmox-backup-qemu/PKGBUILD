@@ -9,16 +9,19 @@ url="https://archmox.acreetionos.org"
 license=('AGPL3')
 depends=('archmox-proxmox-backup' 'archmox-pxar' 'qemu' 'glibc' 'gcc-libs')
 makedepends=('rust' 'cargo' 'make' 'gcc' 'pkg-config')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/proxmox-backup-qemu.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-backup-qemu"
-  cargo build --release --frozen
+  cd "${srcdir}/proxmox-backup-qemu"
+  cargo build --release
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/proxmox-backup-qemu"
-  cargo install --root="${pkgdir}/usr" --frozen
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd "${srcdir}/proxmox-backup-qemu"
+  cargo install --locked --root="${pkgdir}/usr" --path .
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

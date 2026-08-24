@@ -10,17 +10,20 @@ license=('AGPL3')
 depends=('perl' 'perl-gtk3' 'webkit2gtk' 'gtk3')
 makedepends=('make' 'gcc' 'pkg-config' 'perl-module-build'
              'webkit2gtk' 'gtk3' 'cairo' 'glib2')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/libgtk3-webkit-perl.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/libgtk3-webkit-perl"
+  cd "${srcdir}/libgtk3-webkit-perl"
   perl Makefile.PL INSTALLDIRS=vendor DESTDIR="${pkgdir}"
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/libgtk3-webkit-perl"
+  cd "${srcdir}/libgtk3-webkit-perl"
   make install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

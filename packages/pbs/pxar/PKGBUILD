@@ -10,21 +10,24 @@ license=('AGPL3')
 depends=('glibc' 'gcc-libs' 'openssl' 'zlib' 'libsodium' 'zstd'
          'lz4' 'xz')
 makedepends=('rust' 'cargo' 'pkg-config' 'make')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/pxar.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/pxar"
-  cargo build --release --frozen
+  cd "${srcdir}/pxar"
+  cargo build --release
 }
 
 check() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/pxar"
-  cargo test --release --frozen
+  cd "${srcdir}/pxar"
+  cargo test --release
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pbs/pxar"
-  cargo install --root="${pkgdir}/usr" --frozen
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd "${srcdir}/pxar"
+  cargo install --locked --root="${pkgdir}/usr" --path .
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

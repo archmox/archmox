@@ -9,17 +9,20 @@ url="https://archmox.acreetionos.org"
 license=('GPL2' 'LGPL2.1')
 depends=('glibc' 'openssl' 'libxml2')
 makedepends=('make' 'gcc' 'pkg-config')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://github.com/sahlberg/libiscsi.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/libiscsi"
+  cd "${srcdir}/libiscsi"
   ./configure --prefix=/usr
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/libiscsi"
+  cd "${srcdir}/libiscsi"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

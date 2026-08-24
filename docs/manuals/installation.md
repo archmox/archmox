@@ -339,4 +339,4 @@ zpool status     # Check pool health
 - [Arch Linux Installation Guide](https://wiki.archlinux.org/title/Installation_guide)
 - [Proxmox VE Installation Guide](https://pve.proxmox.com/wiki/Installation)
 - [Archmox Build Script](https://github.com/archmox/archmox/blob/main/scripts/ci/build-all.sh)
-- [Archmox ISO Build](https://github.com/archmox/archmox/blob/main/iso/archiso/build.sh)
+- [archiso Profile](https://github.com/archmox/archmox/blob/main/iso/archiso/profiledef.sh)

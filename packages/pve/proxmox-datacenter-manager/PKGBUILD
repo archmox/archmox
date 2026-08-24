@@ -15,16 +15,19 @@ depends=('archmox-pve-common' 'archmox-pve-cluster' 'archmox-pve-http-server'
          'perl-crypt-openssl-rsa' 'perl-crypt-ssleay'
          'perl-datetime' 'perl-linux-inotify2' 'perl-filesys-df')
 makedepends=('make' 'gcc' 'perl-module-build' 'rust' 'cargo')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/proxmox-datacenter-manager.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/proxmox-datacenter-manager"
+  cd "${srcdir}/proxmox-datacenter-manager"
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/proxmox-datacenter-manager"
+  cd "${srcdir}/proxmox-datacenter-manager"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

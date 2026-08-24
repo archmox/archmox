@@ -11,18 +11,21 @@ depends=('glibc' 'openssl' 'libcap-ng' 'libunbound' 'libmnl'
          'libnetfilter-conntrack' 'python' 'python-six')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake'
              'libtool' 'python')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://github.com/openvswitch/ovs.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/openvswitch"
+  cd "${srcdir}/ovs"
   ./boot.sh
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/openvswitch"
+  cd "${srcdir}/ovs"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

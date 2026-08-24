@@ -10,12 +10,13 @@ license=('CDDL')
 depends=('glibc' 'zlib' 'libaio' 'openssl' 'libuuid' 'python'
          'python-setuptools' 'python-cffi' 'util-linux')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake'
-             'libtool' 'python-setuptools' 'python-cffi' 'kernel-headers')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+             'libtool' 'python-setuptools' 'python-cffi' 'linux-lts-headers')
+source=("git+https://github.com/openzfs/zfs.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/zfs"
+  cd "${srcdir}/zfs"
   ./autogen.sh
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
     --with-linux=/usr/lib/modules/$(uname -r)/build
@@ -23,7 +24,9 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/zfs"
+  cd "${srcdir}/zfs"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

@@ -15,16 +15,19 @@ depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-firewall
          'bridge-utils' 'ethtool' 'iproute2' 'iptables-nft'
          'conntrack-tools')
 makedepends=('make' 'gcc' 'perl-module-build')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/pve-network.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-network"
+  cd "${srcdir}/pve-network"
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-network"
+  cd "${srcdir}/pve-network"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

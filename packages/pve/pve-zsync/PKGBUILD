@@ -12,16 +12,19 @@ depends=('archmox-pve-common' 'zfs-utils' 'perl' 'perl-json'
          'perl-xml-libxml' 'perl-filesys-df' 'perl-string-shellquote'
          'perl-datetime' 'ssh' 'rsync')
 makedepends=('make' 'gcc' 'perl-module-build')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/pve-zsync.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-zsync"
+  cd "${srcdir}/pve-zsync"
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-zsync"
+  cd "${srcdir}/pve-zsync"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

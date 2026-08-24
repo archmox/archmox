@@ -10,18 +10,21 @@ license=('GPL2')
 depends=('glibc' 'libdevmapper' 'libselinux' 'libsepol' 'libuuid'
          'libblkid' 'readline' 'udev' 'thin-provisioning-tools')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://sourceware.org/git/lvm2.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/lvm"
+  cd "${srcdir}/lvm2"
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
     --enable-udev_rules --enable-udev_sync --enable-dmeventd
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/lvm"
+  cd "${srcdir}/lvm2"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

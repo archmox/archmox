@@ -9,12 +9,15 @@ url="https://archmox.acreetionos.org"
 license=('GPL2' 'BSD' 'MIT')
 depends=()
 makedepends=()
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/pve-firmware.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/infra/pve-firmware"
+  cd "${srcdir}/pve-firmware"
   install -dm755 "${pkgdir}/usr/lib/firmware"
   cp -r * "${pkgdir}/usr/lib/firmware/" 2>/dev/null || true
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

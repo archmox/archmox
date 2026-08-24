@@ -14,16 +14,19 @@ depends=('archmox-pve-common' 'archmox-pve-guest-common' 'archmox-pve-storage'
          'perl-filesys-df' 'perl-string-shellquote'
          'perl-linux-inotify2' 'pve-lxc-syscalld')
 makedepends=('make' 'gcc' 'perl-module-build')
-source=("https://github.com/archmox/archmox/archive/v${pkgver}.tar.gz")
+source=("git+https://git.proxmox.com/git/pve-container.git")
+# Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-container"
+  cd "${srcdir}/pve-container"
   make
 }
 
 package() {
-  cd "${srcdir}/archmox-${pkgver}/packages/pve/pve-container"
+  cd "${srcdir}/pve-container"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  if [[ -f LICENSE ]]; then
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+fi
 }

@@ -1,0 +1,87 @@
+# Archmox Stack Manifest
+#
+# Source of truth for the component inventory of the Archmox stack.
+# CI (build-packages.yml) watches this directory; bump entries here when
+# packages are added, removed, or pinned.
+#
+# Fields per package:
+#   category  — build group / repo subdirectory
+#   upstream  — source repository tracked by the PKGBUILD
+#   ref       — tracking mode: "master" (rolling) or a pinned tag
+#   role      — human-readable purpose
+
+version: 1
+stack:
+  name: archmox
+  description: Open Source Virtualization Stack for Arch Linux
+  base_os:
+    kernel: linux-lts
+    notes: Proxmox patch series carried in kernel/patches
+
+packages:
+  # ---- core ------------------------------------------------------------
+  - {name: proxmox-rs,             category: core,  upstream: "https://git.proxmox.com/git/proxmox.git",                     ref: master, role: Shared Rust workspace (proxmox-* crates)}
+  - {name: pve-common,             category: core,  upstream: "https://git.proxmox.com/git/pve-common.git",                  ref: master, role: Shared Perl libraries}
+  - {name: proxmox-widget-toolkit, category: core,  upstream: "https://git.proxmox.com/git/proxmox-widget-toolkit.git",      ref: master, role: Base ExtJS widgets}
+  - {name: proxmox-i18n,           category: core,  upstream: "https://git.proxmox.com/git/proxmox-i18n.git",                ref: master, role: Translations}
+  - {name: pve-eslint,             category: core,  upstream: "https://git.proxmox.com/git/pve-eslint.git",                  ref: master, role: JS lint rules for UI builds}
+  - {name: pve-jslint,             category: core,  upstream: "https://git.proxmox.com/git/pve-jslint.git",                  ref: master, role: Legacy JS linting}
+
+  # ---- pve -------------------------------------------------------------
+  - {name: pve-access-control,     category: pve,   upstream: "https://git.proxmox.com/git/pve-access-control.git",          ref: master, role: Auth realms & RBAC}
+  - {name: pve-cluster,            category: pve,   upstream: "https://git.proxmox.com/git/pve-cluster.git",                 ref: master, role: pmxcfs clustered config FS}
+  - {name: pve-storage,            category: pve,   upstream: "https://git.proxmox.com/git/pve-storage.git",                 ref: master, role: Storage plugin system}
+  - {name: pve-firewall,           category: pve,   upstream: "https://git.proxmox.com/git/pve-firewall.git",                ref: master, role: Cluster firewall}
+  - {name: pve-guest-common,       category: pve,   upstream: "https://git.proxmox.com/git/pve-guest-common.git",            ref: master, role: VM/CT shared helpers}
+  - {name: pve-ha-manager,         category: pve,   upstream: "https://git.proxmox.com/git/pve-ha-manager.git",              ref: master, role: HA CRM/LRM}
+  - {name: pve-network,            category: pve,   upstream: "https://git.proxmox.com/git/pve-network.git",                 ref: master, role: SDN controller}
+  - {name: pve-http-server,        category: pve,   upstream: "https://git.proxmox.com/git/pve-http-server.git",             ref: master, role: AnyEvent HTTP server}
+  - {name: pve-container,          category: pve,   upstream: "https://git.proxmox.com/git/pve-container.git",               ref: master, role: LXC management}
+  - {name: qemu-server,            category: pve,   upstream: "https://git.proxmox.com/git/qemu-server.git",                 ref: master, role: QEMU/KVM management}
+  - {name: pve-edk2-firmware,      category: pve,   upstream: "https://git.proxmox.com/git/pve-edk2-firmware.git",           ref: master, role: OVMF firmware}
+  - {name: pve-xtermjs,            category: pve,   upstream: "https://git.proxmox.com/git/pve-xtermjs.git",                 ref: master, role: Web terminal}
+  - {name: pve-zsync,              category: pve,   upstream: "https://git.proxmox.com/git/pve-zsync.git",                   ref: master, role: ZFS replication jobs}
+  - {name: pve-lxc-syscalld,       category: pve,   upstream: "https://git.proxmox.com/git/pve-lxc-syscalld.git",            ref: master, role: LXC syscall proxy}
+  - {name: pve-sheepdog,           category: pve,   upstream: "https://git.proxmox.com/git/pve-sheepdog.git",                ref: master, role: Legacy Sheepdog storage}
+  - {name: proxmox-yew-comp,       category: pve,   upstream: "https://git.proxmox.com/git/proxmox-yew-comp.git",            ref: master, role: Yew UI components}
+  - {name: proxmox-datacenter-manager, category: pve, upstream: "https://git.proxmox.com/git/proxmox-datacenter-manager.git", ref: master, role: Multi-node manager}
+  - {name: pve-docs,               category: pve,   upstream: "https://git.proxmox.com/git/pve-docs.git",                    ref: master, role: Documentation}
+  - {name: pve-installer,          category: pve,   upstream: "https://git.proxmox.com/git/pve-installer.git",               ref: master, role: ISO installer}
+  - {name: pve-manager,            category: pve,   upstream: "https://git.proxmox.com/git/pve-manager.git",                 ref: master, role: Web UI & service glue}
+  - {name: pve-qemu-kvm,           category: pve,   upstream: "https://git.proxmox.com/git/pve-qemu-kvm.git",                ref: master, role: PVE QEMU fork}
+  - {name: proxmox-ve,             category: pve,   upstream: metapackage,                                                   ref: none,   role: Installs the full PVE stack}
+
+  # ---- pbs ---------------------------------------------------------------
+  - {name: pxar,                   category: pbs,   upstream: "https://git.proxmox.com/git/pxar.git",                        ref: master, role: Archive format}
+  - {name: proxmox-fuse-rs,        category: pbs,   upstream: "https://git.proxmox.com/git/proxmox-fuse.git",                ref: master, role: Rust FUSE bindings}
+  - {name: proxmox-backup,         category: pbs,   upstream: "https://git.proxmox.com/git/proxmox-backup.git",              ref: master, role: Backup server}
+  - {name: proxmox-backup-qemu,    category: pbs,   upstream: "https://git.proxmox.com/git/proxmox-backup-qemu.git",         ref: master, role: QEMU backup integration}
+
+  # ---- pmg ---------------------------------------------------------------
+  - {name: pmg-api,                category: pmg,   upstream: "https://git.proxmox.com/git/pmg-api.git",                     ref: master, role: Mail gateway daemon}
+  - {name: pmg-gui,                category: pmg,   upstream: "https://git.proxmox.com/git/pmg-gui.git",                     ref: master, role: Mail gateway UI}
+  - {name: pmg-docs,               category: pmg,   upstream: "https://git.proxmox.com/git/pmg-docs.git",                    ref: master, role: Mail gateway docs}
+
+  # ---- infra -------------------------------------------------------------
+  - {name: libiscsi,               category: infra, upstream: "https://github.com/sahlberg/libiscsi.git",                    ref: master, role: iSCSI client library}
+  - {name: lvm,                    category: infra, upstream: "https://sourceware.org/git/lvm2.git",                         ref: master, role: LVM2 with thin provisioning}
+  - {name: lxc,                    category: infra, upstream: "https://github.com/lxc/lxc.git",                              ref: master, role: Containers runtime}
+  - {name: zfs,                    category: infra, upstream: "https://github.com/openzfs/zfs.git",                          ref: master, role: ZFS filesystem}
+  - {name: ksm-control-daemon,     category: infra, upstream: "https://git.proxmox.com/git/ksm-control-daemon.git",          ref: master, role: KSM tuning daemon}
+  - {name: pve-libspice-server,    category: infra, upstream: "https://gitlab.freedesktop.org/spice/spice.git",              ref: master, role: SPICE server library}
+  - {name: pve-firmware,           category: infra, upstream: "https://git.proxmox.com/git/pve-firmware.git",                ref: master, role: Firmware blobs bundle}
+  - {name: vncterm,                category: infra, upstream: "https://git.proxmox.com/git/vncterm.git",                     ref: master, role: VNC terminal server}
+  - {name: spiceterm,              category: infra, upstream: "https://git.proxmox.com/git/spiceterm.git",                   ref: master, role: SPICE terminal server}
+  - {name: corosync-pve,           category: infra, upstream: "https://github.com/corosync/corosync.git",                    ref: master, role: Cluster membership}
+  - {name: corosync-qdevice,       category: infra, upstream: "https://git.proxmox.com/git/corosync-qdevice.git",            ref: master, role: Quorum device}
+  - {name: openvswitch,            category: infra, upstream: "https://github.com/openvswitch/ovs.git",                      ref: master, role: SDN switching}
+  - {name: redhat-cluster-pve,     category: infra, upstream: "https://git.proxmox.com/git/redhat-cluster-pve.git",          ref: master, role: Legacy cluster stack bits}
+  - {name: gfs2-utils,             category: infra, upstream: "https://git.kernel.org/pub/scm/linux/kernel/git/gfs2/gfs2-utils.git", ref: master, role: GFS2 tooling}
+  - {name: fence-agents-pve,       category: infra, upstream: "https://github.com/ClusterLabs/fence-agents.git",             ref: master, role: Fencing agents}
+  - {name: resource-agents-pve,    category: infra, upstream: "https://github.com/ClusterLabs/resource-agents.git",          ref: master, role: HA resource agents}
+  - {name: ceph,                   category: infra, upstream: "https://github.com/ceph/ceph.git",                            ref: master, role: Distributed storage}
+  - {name: qemu,                   category: infra, upstream: "https://gitlab.com/qemu-project/qemu.git",                    ref: master, role: Machine emulator}
+  - {name: dab,                    category: infra, upstream: "https://git.proxmox.com/git/dab.git",                         ref: master, role: Appliance builder}
+  - {name: dab-pve-appliances,     category: infra, upstream: "https://git.proxmox.com/git/dab-pve-appliances.git",          ref: master, role: Stock appliances}
+  - {name: libgtk3-webkit-perl,    category: infra, upstream: "https://git.proxmox.com/git/libgtk3-webkit-perl.git",         ref: master, role: Perl GTK webview bindings}
+  - {name: proxmox-firewall,       category: infra, upstream: "https://git.proxmox.com/git/proxmox-firewall.git",            ref: master, role: nftables firewall engine}
