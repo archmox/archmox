@@ -69,7 +69,7 @@ jobs:
         run: |
           pacman -Syu --noconfirm
           pacman -S --noconfirm archiso squashfs-tools \
-            dosfstools mtools libisoburn rsync
+            dosfstools mtools libisoburn rsync grub syslinux
 
       - name: Download packages
         uses: actions/download-artifact@v4

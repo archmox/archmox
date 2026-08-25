@@ -12,6 +12,7 @@ amd-ucode
 intel-ucode
 grub
 efibootmgr
+syslinux
 sudo
 openssh
 vim
