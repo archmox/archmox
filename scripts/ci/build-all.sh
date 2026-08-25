@@ -74,6 +74,7 @@ PMG_PKGS=(
 
 INFRA_PKGS=(
   libiscsi
+  kronosnet
   lvm
   lxc
   zfs
@@ -128,6 +129,38 @@ ensure_builder() {
       > "/etc/sudoers.d/90-${BUILDER_USER}"
     chmod 440 "/etc/sudoers.d/90-${BUILDER_USER}"
   fi
+}
+
+# Upstream Proxmox Makefiles include Debian's dpkg metadata fragments.
+# Provide tolerant stubs so they parse outside a Debian build env.
+install_dpkg_shims() {
+  is_root || return 0
+  local d=/usr/share/dpkg
+  mkdir -p "${d}"
+  if [[ ! -f "${d}/pkg-info.mk" ]]; then
+    cat > "${d}/pkg-info.mk" <<'EOF'
+DEB_SOURCE ?= archmox-port
+DEB_VERSION ?= 1.0.0
+DEB_VERSION_EPOCH_UPSTREAM ?= 1.0.0
+DEB_VERSION_UPSTREAM ?= 1.0.0
+DEB_VERSION_UPSTREAM_REVISION ?= 1.0.0-1
+DEB_DISTRIBUTION ?= unstable
+DEB_VENDOR ?= Debian
+EOF
+  fi
+  if [[ ! -f "${d}/architecture.mk" ]]; then
+    cat > "${d}/architecture.mk" <<'EOF'
+DEB_BUILD_ARCH ?= amd64
+DEB_BUILD_GNU_TYPE ?= x86_64-linux-gnu
+DEB_HOST_ARCH ?= amd64
+DEB_HOST_ARCH_CPU ?= amd64
+DEB_HOST_ARCH_BITS ?= 64
+DEB_HOST_ARCH_ENDIAN ?= little
+DEB_HOST_GNU_TYPE ?= x86_64-linux-gnu
+DEB_HOST_MULTIARCH ?= x86_64-linux-gnu
+EOF
+  fi
+  [[ -f "${d}/default.mk" ]] || printf '# archmox stub: no Debian build flags\n' > "${d}/default.mk"
 }
 
 run_as_builder() {
@@ -205,7 +238,7 @@ build_package() {
     cp -a "${pkgdir}/src" "${build_dir}/"
   fi
 
-  ensure_builder
+  install_dpkg_shims
   if is_root; then
     chown -R "${BUILDER_USER}:" "${build_dir}" "${BUILDDIR}" "${LOGDIR}"
   fi

@@ -8,10 +8,16 @@ arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('GPL2' 'LGPL2.1')
 depends=('glibc' 'openssl' 'libxml2')
-makedepends=('make' 'gcc' 'pkg-config')
+makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
 source=("git+https://github.com/sahlberg/libiscsi.git")
 # Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
+
+prepare() {
+  cd "${srcdir}/libiscsi"
+  # Git checkouts ship no generated configure script
+  NOCONFIGURE=1 ./autogen.sh
+}
 
 build() {
   cd "${srcdir}/libiscsi"

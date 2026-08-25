@@ -8,7 +8,7 @@ arch=('any')
 url="https://archmox.acreetionos.org"
 license=('GPL2')
 depends=('perl' 'perl-libwww' 'perl-json' 'perl-io-socket-ssl'
-         'perl-net-ip' 'perl-xml-libxml' 'perl-crypt-openssl-rsa' 'pacemaker' 'resource-agents')
+         'perl-net-ip' 'perl-xml-libxml' 'perl-crypt-openssl-rsa' 'pacemaker')
 makedepends=('make')
 source=("git+https://github.com/ClusterLabs/resource-agents.git")
 # Rolling port: track upstream master until pinned refs are validated.

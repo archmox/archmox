@@ -64,7 +64,8 @@ packages:
   - {name: pmg-gui,                category: pmg,   upstream: "https://git.proxmox.com/git/pmg-gui.git",                     ref: master, role: Mail gateway UI}
   - {name: pmg-docs,               category: pmg,   upstream: "https://git.proxmox.com/git/pmg-docs.git",                    ref: master, role: Mail gateway docs}
 
-  # ---- infra -------------------------------------------------------------
+  # ---- infra -----------------------------------------------------------
+  - {name: kronosnet,              category: infra, upstream: "https://github.com/kronosnet/kronosnet.git",                 ref: master, role: libknet transport required by corosync3}--
   - {name: libiscsi,               category: infra, upstream: "https://github.com/sahlberg/libiscsi.git",                    ref: master, role: iSCSI client library}
   - {name: lvm,                    category: infra, upstream: "https://sourceware.org/git/lvm2.git",                         ref: master, role: LVM2 with thin provisioning}
   - {name: lxc,                    category: infra, upstream: "https://github.com/lxc/lxc.git",                              ref: master, role: Containers runtime}

@@ -7,8 +7,8 @@ pkgdesc="Open vSwitch with Proxmox patches - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('Apache')
-depends=('glibc' 'openssl' 'libcap-ng' 'libunbound' 'libmnl'
-         'libnetfilter-conntrack' 'python' 'python-six')
+depends=('glibc' 'openssl' 'libcap-ng' 'unbound' 'libmnl'
+         'libnetfilter_conntrack' 'python' 'python-six')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake'
              'libtool' 'python')
 source=("git+https://github.com/openvswitch/ovs.git")

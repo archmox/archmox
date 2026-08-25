@@ -7,7 +7,7 @@ pkgdesc="SPICE terminal for Proxmox - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('AGPL3')
-depends=('glibc' 'spice-server' 'spice-protocol' 'libssl' 'zlib')
+depends=('glibc' 'archmox-pve-libspice-server' 'spice-protocol' 'openssl' 'zlib')
 makedepends=('make' 'gcc' 'pkg-config')
 source=("git+https://git.proxmox.com/git/spiceterm.git")
 # Rolling port: track upstream master until pinned refs are validated.

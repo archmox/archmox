@@ -1,0 +1,31 @@
+# Maintainer: Archmox Team <dev@archmox.acreetionos.org>
+pkgname=archmox-kronosnet
+pkgver=1.30
+pkgrel=1
+pkgdesc="Kronosnet network abstraction layer (corosync dependency)"
+arch=('x86_64')
+url="https://kronosnet.org"
+license=('LGPL2.1' 'GPL2')
+depends=('glibc' 'openssl' 'zlib' 'lzo' 'libnl' 'nss' 'nspr' 'libqb')
+makedepends=('autoconf' 'automake' 'libtool' 'pkg-config' 'make' 'gcc')
+options=('!check')  # knet_bench needs a multi-node setup
+source=("git+https://github.com/kronosnet/kronosnet.git")
+# Rolling port: track upstream master until pinned refs are validated.
+sha256sums=('SKIP')
+
+prepare() {
+  cd "${srcdir}/kronosnet"
+  ./autogen.sh
+}
+
+build() {
+  cd "${srcdir}/kronosnet"
+  ./configure --prefix=/usr --sbindir=/usr/bin \
+    --disable-systemd --disable-libnozzle
+  make
+}
+
+package() {
+  cd "${srcdir}/kronosnet"
+  make DESTDIR="${pkgdir}" install
+}

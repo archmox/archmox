@@ -7,7 +7,7 @@ pkgdesc="VNC terminal for Proxmox - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('AGPL3')
-depends=('glibc' 'libvncserver' 'libssl' 'libcrypto' 'zlib' 'lzo')
+depends=('glibc' 'libvncserver' 'openssl' 'libcrypto' 'zlib' 'lzo')
 makedepends=('make' 'gcc' 'pkg-config' 'cmake')
 source=("git+https://git.proxmox.com/git/vncterm.git")
 # Rolling port: track upstream master until pinned refs are validated.

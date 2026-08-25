@@ -7,8 +7,8 @@ pkgdesc="LVM2 with Proxmox patches - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('GPL2')
-depends=('glibc' 'libdevmapper' 'libselinux' 'libsepol' 'libuuid'
-         'libblkid' 'readline' 'udev' 'thin-provisioning-tools')
+depends=('glibc' 'device-mapper' 'util-linux'
+         'util-linux' 'readline' 'udev' 'thin-provisioning-tools')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake')
 source=("git+https://sourceware.org/git/lvm2.git")
 # Rolling port: track upstream master until pinned refs are validated.

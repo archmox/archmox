@@ -7,8 +7,7 @@ pkgdesc="LXC containers with Proxmox patches - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('LGPL2.1')
-depends=('glibc' 'libcap' 'libseccomp' 'libselinux' 'gnutls'
-         'libapparmor' 'rsync' 'pigz')
+depends=('glibc' 'libcap' 'libseccomp' 'gnutls' 'rsync' 'pigz')
 makedepends=('make' 'gcc' 'pkg-config' 'meson' 'ninja' 'python')
 source=("git+https://github.com/lxc/lxc.git")
 # Rolling port: track upstream master until pinned refs are validated.

@@ -7,7 +7,7 @@ pkgdesc="ZFS filesystem with Proxmox patches - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('CDDL')
-depends=('glibc' 'zlib' 'libaio' 'openssl' 'libuuid' 'python'
+depends=('glibc' 'zlib' 'libaio' 'openssl' 'util-linux' 'python'
          'python-setuptools' 'python-cffi' 'util-linux')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake'
              'libtool' 'python-setuptools' 'python-cffi' 'linux-lts-headers')

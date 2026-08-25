@@ -224,7 +224,7 @@ jobs:
 
   build-infra:
     name: Build Infrastructure Packages
-    needs: lint-pkgbuilds
+    needs: [lint-pkgbuilds, build-core]
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
@@ -237,6 +237,17 @@ jobs:
           pacman -Syu --noconfirm
           pacman -S --noconfirm base-devel git rust cargo cmake \
             autoconf automake libtool pkg-config
+
+      - name: Download core artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: core-packages
+          path: repo/
+
+      - name: Install core packages
+        run: |
+          cd repo
+          pacman -U --noconfirm *.pkg.tar.zst 2>/dev/null || true
 
       - name: Build infrastructure packages
         run: |
