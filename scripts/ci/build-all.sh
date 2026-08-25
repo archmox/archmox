@@ -239,6 +239,7 @@ build_package() {
   fi
 
   install_dpkg_shims
+  ensure_builder
   if is_root; then
     chown -R "${BUILDER_USER}:" "${build_dir}" "${BUILDDIR}" "${LOGDIR}"
   fi
