@@ -7,7 +7,7 @@ pkgdesc="GFS2 filesystem utilities with Proxmox patches - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('GPL2')
-depends=('glibc' 'libuuid' 'libblkid' 'libnl' 'corosync' 'pacemaker')
+depends=('glibc' 'util-linux' 'libblkid' 'libnl' 'archmox-corosync-pve' 'pacemaker')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
 source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/gfs2/gfs2-utils.git")
 # Rolling port: track upstream master until pinned refs are validated.

@@ -7,8 +7,8 @@ pkgdesc="Proxmox widget toolkit (ExtJS-based UI components) - ported for Arch Li
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('AGPL3' 'LGPL2.1')
-depends=( 'sencha-framework')
-makedepends=('nodejs' 'npm' 'sass' 'sencha-cmd')
+depends=()
+makedepends=('nodejs' 'npm' 'sass')
 source=("git+https://git.proxmox.com/git/proxmox-widget-toolkit.git")
 # Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')
@@ -22,6 +22,6 @@ package() {
   cd "${srcdir}/proxmox-widget-toolkit"
   make DESTDIR="${pkgdir}" install
   if [[ -f LICENSE ]]; then
-    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-fi
+    install -Dm644 LICENSE "/usr/share/licenses//LICENSE"
+  fi
 }

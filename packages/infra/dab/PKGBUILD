@@ -9,7 +9,7 @@ url="https://archmox.acreetionos.org"
 license=('AGPL3')
 depends=('perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
          'perl-xml-libxml' 'perl-template-toolkit'
-         'perl-file-slurp' 'perl-datetime' 'perl-linux-inotify2'
+         'perl-file-slurp' 'perl-datetime' 'archmox-perl-linux-inotify2'
          'perl-filesys-df' 'wget' 'debootstrap' 'mmdebstrap'
          'tar' 'xz' 'gzip' 'bzip2')
 makedepends=('make' 'gcc' 'perl-module-build')

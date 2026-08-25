@@ -9,8 +9,7 @@ url="https://archmox.acreetionos.org"
 license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-pve-access-control'
          'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
-         'perl-net-ip' 'perl-xml-libxml' 'perl-filesys-df'
-         'sheepdog')
+         'perl-net-ip' 'perl-xml-libxml' 'perl-filesys-df')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-sheepdog.git")
 # Rolling port: track upstream master until pinned refs are validated.

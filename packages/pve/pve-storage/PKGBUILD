@@ -10,10 +10,10 @@ license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-firewall'
          'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
          'perl-net-ip' 'perl-xml-libxml' 'perl-filesys-df'
-         'perl-string-shellquote' 'perl-linux-inotify2'
-         'lvm2' 'btrfs-progs' 'zfs-utils' 'ceph-common'
-         'cifs-utils' 'nfs-utils' 'glusterfs' 'smbclient'
-         'proxmox-backup-client' 'pve-sheepdog')
+         'perl-string-shellquote' 'archmox-perl-linux-inotify2'
+         'lvm2' 'btrfs-progs' 'archmox-zfs'
+         'cifs-utils' 'nfs-utils' 'smbclient'
+         'archmox-proxmox-backup')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-storage.git")
 # Rolling port: track upstream master until pinned refs are validated.

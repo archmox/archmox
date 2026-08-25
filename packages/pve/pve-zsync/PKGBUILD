@@ -7,10 +7,10 @@ pkgdesc="Proxmox VE ZFS synchronization tool - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('AGPL3')
-depends=('archmox-pve-common' 'zfs-utils' 'perl' 'perl-json'
+depends=('archmox-pve-common' 'archmox-zfs' 'perl' 'perl-json'
          'perl-libwww' 'perl-io-socket-ssl' 'perl-net-ip'
          'perl-xml-libxml' 'perl-filesys-df' 'perl-string-shellquote'
-         'perl-datetime' 'ssh' 'rsync')
+         'perl-datetime' 'openssh' 'rsync')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-zsync.git")
 # Rolling port: track upstream master until pinned refs are validated.

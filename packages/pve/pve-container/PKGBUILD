@@ -12,7 +12,7 @@ depends=('archmox-pve-common' 'archmox-pve-guest-common' 'archmox-pve-storage'
          'lxc' 'lxcfs' 'perl' 'perl-json' 'perl-libwww'
          'perl-net-ip' 'perl-io-socket-ssl' 'perl-xml-libxml'
          'perl-filesys-df' 'perl-string-shellquote'
-         'perl-linux-inotify2' 'pve-lxc-syscalld')
+         'archmox-perl-linux-inotify2' 'archmox-pve-lxc-syscalld')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-container.git")
 # Rolling port: track upstream master until pinned refs are validated.

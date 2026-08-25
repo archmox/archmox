@@ -24,6 +24,8 @@ readonly NC='\033[0m'
 # Package groups listed in strict dependency order
 #--------------------------------------------------------------------------
 CORE_PKGS=(
+  perl-linux-inotify2
+  perl-authen-pam
   proxmox-rs
   pve-common
   proxmox-widget-toolkit
@@ -165,7 +167,7 @@ EOF
 _pkgdir_to_cat() {
   local name="$1"
   case "$name" in
-    proxmox-rs|pve-common|proxmox-widget-toolkit|proxmox-i18n|pve-eslint|pve-jslint)
+    perl-linux-inotify2|perl-authen-pam|proxmox-rs|pve-common|proxmox-widget-toolkit|proxmox-i18n|pve-eslint|pve-jslint)
       echo "core" ;;
     pxar|proxmox-fuse-rs|proxmox-backup|proxmox-backup-qemu)
       echo "pbs" ;;
@@ -269,7 +271,7 @@ main() {
 
   # Build all package groups in order
   local all_pkgs=()
-  all_pkgs+=("${CORE_PKGS[@]}" "${PVE_PKGS[@]}" "${PBS_PKGS[@]}" "${PMG_PKGS[@]}" "${INFRA_PKGS[@]}")
+  all_pkgs+=("${CORE_PKGS[@]}" "${INFRA_PKGS[@]}" "${PBS_PKGS[@]}" "${PVE_PKGS[@]}" "${PMG_PKGS[@]}")
 
   local started=false
   [[ -z "${start_from}" ]] && started=true

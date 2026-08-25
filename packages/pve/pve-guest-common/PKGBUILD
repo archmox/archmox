@@ -10,7 +10,7 @@ license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-pve-storage' 'archmox-pve-firewall'
          'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
          'perl-net-ip' 'perl-xml-libxml' 'perl-filesys-df'
-         'perl-string-shellquote' 'perl-linux-inotify2')
+         'perl-string-shellquote' 'archmox-perl-linux-inotify2')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-guest-common.git")
 # Rolling port: track upstream master until pinned refs are validated.

@@ -9,11 +9,10 @@ url="https://archmox.acreetionos.org"
 license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-proxmox-rs'
          'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
-         'perl-crypt-openssl-rsa' 'perl-crypt-ssleay'
-         'perl-authen-pam' 'perl-ldap' 'perl-net-ldap-server'
-         'perl-authen-radius' 'perl-crypt-openssl-x509'
+         'perl-crypt-openssl-rsa'
+         'archmox-perl-authen-pam' 'perl-ldap' 'perl-net-ldap-server'
          'perl-mailtools' 'perl-mime-lite'
-         'pam' 'pam-ccreds' 'lsof')
+         'pam' 'lsof')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-access-control.git")
 # Rolling port: track upstream master until pinned refs are validated.

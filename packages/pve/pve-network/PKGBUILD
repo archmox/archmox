@@ -11,8 +11,7 @@ depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-firewall
          'archmox-pve-cluster' 'perl' 'perl-json' 'perl-libwww'
          'perl-io-socket-ssl' 'perl-net-ip' 'perl-net-dns'
          'perl-xml-libxml' 'perl-filesys-df' 'perl-string-shellquote'
-         'perl-linux-inotify2' 'ifupdown-ng' 'openvswitch'
-         'bridge-utils' 'ethtool' 'iproute2' 'iptables-nft'
+         'archmox-perl-linux-inotify2' 'openvswitch' 'ethtool' 'iproute2' 'iptables-nft'
          'conntrack-tools')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-network.git")

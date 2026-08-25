@@ -10,12 +10,12 @@ license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-pve-guest-common' 'archmox-pve-storage'
          'archmox-pve-firewall' 'archmox-pve-access-control'
          'qemu' 'qemu-audio-alsa' 'qemu-audio-pa' 'qemu-audio-spice'
-         'qemu-block-iscsi' 'qemu-block-rbd' 'qemu-desktop'
-         'qemu-hw-usb-redirect' 'qemu-ui-spice-core' 'qemu-ui-vnc'
+         'qemu-block-iscsi' 'qemu-desktop'
+         'qemu-hw-usb-redirect' 'qemu-ui-spice-core'
          'qemu-vhost-user-gpu' 'perl' 'perl-json' 'perl-libwww'
          'perl-net-ip' 'perl-io-socket-ssl' 'perl-xml-libxml'
          'perl-filesys-df' 'perl-string-shellquote'
-         'perl-linux-inotify2' 'dmidecode' 'seabios' 'ovmf' 'swtpm'
+         'archmox-perl-linux-inotify2' 'dmidecode' 'seabios' 'edk2-ovmf' 'swtpm'
          )
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/qemu-server.git")

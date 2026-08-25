@@ -38,7 +38,7 @@ if [[ -n "${build_missing}" ]]; then
 fi
 
 # 3) Upstream URLs must look like git remotes (metapackages exempt)
-url_pattern='^(https|git\+https)://[^[:space:]"]+\.git$'
+url_pattern='^(https|git\+https)://[^[:space:]"]+\.git$|^https://metacpan\.org/dist/[^[:space:]"]+$'
 while IFS= read -r line; do
   name="${line%%|*}"
   upstream="${line#*|}"

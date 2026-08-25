@@ -11,8 +11,8 @@ depends=('archmox-pve-common' 'archmox-pve-cluster' 'archmox-pve-access-control'
          'archmox-pve-guest-common'
          'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
          'perl-net-ip' 'perl-xml-libxml' 'perl-filesys-df'
-         'perl-string-shellquote' 'perl-linux-inotify2'
-         'corosync' 'libqb' 'watchdog')
+         'perl-string-shellquote' 'archmox-perl-linux-inotify2'
+         'archmox-corosync-pve' 'libqb')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-ha-manager.git")
 # Rolling port: track upstream master until pinned refs are validated.

@@ -8,7 +8,7 @@ arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('AGPL3' 'BSD')
 depends=()
-makedepends=('make' 'gcc' 'nasm' 'python' 'acpica' 'uuid')
+makedepends=('make' 'gcc' 'nasm' 'python' 'acpica' 'util-linux')
 source=("git+https://git.proxmox.com/git/pve-edk2-firmware.git")
 # Rolling port: track upstream master until pinned refs are validated.
 sha256sums=('SKIP')

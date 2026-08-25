@@ -20,6 +20,8 @@ stack:
 
 packages:
   # ---- core ------------------------------------------------------------
+  - {name: perl-linux-inotify2,    category: core,  upstream: "https://metacpan.org/dist/Linux-Inotify2",                    ref: "2.3",   role: inotify bindings needed by most PVE Perl services}
+  - {name: perl-authen-pam,        category: core,  upstream: "https://metacpan.org/dist/Authen-PAM",                        ref: "0.16",  role: PAM auth bindings for access-control/http-server}
   - {name: proxmox-rs,             category: core,  upstream: "https://git.proxmox.com/git/proxmox.git",                     ref: master, role: Shared Rust workspace (proxmox-* crates)}
   - {name: pve-common,             category: core,  upstream: "https://git.proxmox.com/git/pve-common.git",                  ref: master, role: Shared Perl libraries}
   - {name: proxmox-widget-toolkit, category: core,  upstream: "https://git.proxmox.com/git/proxmox-widget-toolkit.git",      ref: master, role: Base ExtJS widgets}

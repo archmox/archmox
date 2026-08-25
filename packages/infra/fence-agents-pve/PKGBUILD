@@ -8,8 +8,7 @@ arch=('any')
 url="https://archmox.acreetionos.org"
 license=('GPL2')
 depends=('perl' 'perl-libwww' 'perl-json' 'perl-io-socket-ssl'
-         'perl-net-ip' 'perl-xml-libxml' 'perl-crypt-openssl-rsa'
-         'perl-crypt-ssleay' 'fence-agents')
+         'perl-net-ip' 'perl-xml-libxml' 'perl-crypt-openssl-rsa' 'fence-agents')
 makedepends=('make')
 source=("git+https://github.com/ClusterLabs/fence-agents.git")
 # Rolling port: track upstream master until pinned refs are validated.

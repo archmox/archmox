@@ -10,10 +10,10 @@ license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-pve-access-control'
          'perl' 'perl-json' 'perl-libwww' 'perl-http-daemon'
          'perl-io-socket-ssl' 'perl-net-ip' 'perl-xml-libxml'
-         'perl-cgi' 'perl-crypt-openssl-rsa' 'perl-crypt-ssleay'
+         'perl-cgi' 'perl-crypt-openssl-rsa' 'REMOVE'
          'perl-uri' 'perl-template-toolkit' 'perl-file-slurp'
-         'perl-authen-pam' 'perl-datetime'
-         'perl-linux-inotify2' 'perl-filesys-df'
+         'archmox-perl-authen-pam' 'perl-datetime'
+         'archmox-perl-linux-inotify2' 'perl-filesys-df'
           )
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-http-server.git")

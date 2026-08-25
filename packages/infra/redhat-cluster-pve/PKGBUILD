@@ -7,7 +7,7 @@ pkgdesc="Red Hat cluster suite with Proxmox patches - ported for Arch Linux"
 arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('GPL2' 'LGPL2.1')
-depends=('glibc' 'libxml2' 'libqb' 'corosync' 'pacemaker' 'nss')
+depends=('glibc' 'libxml2' 'libqb' 'archmox-corosync-pve' 'pacemaker' 'nss')
 makedepends=('make' 'gcc' 'pkg-config' 'autoconf' 'automake' 'libtool')
 source=("git+https://git.proxmox.com/git/redhat-cluster-pve.git")
 # Rolling port: track upstream master until pinned refs are validated.

@@ -8,10 +8,10 @@ arch=('x86_64')
 url="https://archmox.acreetionos.org"
 license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-pve-access-control'
-         'corosync' 'libqb' 'perl' 'perl-json' 'perl-libwww'
+         'archmox-corosync-pve' 'libqb' 'perl' 'perl-json' 'perl-libwww'
          'perl-io-socket-ssl' 'perl-net-ip' 'perl-xml-libxml'
-         'perl-crypt-openssl-rsa' 'perl-crypt-ssleay'
-         'perl-linux-inotify2' 'perl-filesys-df' 'perl-date-format'
+         'perl-crypt-openssl-rsa'
+         'archmox-perl-linux-inotify2' 'perl-filesys-df' 'perl-timedate'
          'perl-net-ssleay' 'archmox-pve-network')
 makedepends=('make' 'gcc' 'perl-module-build' 'cmocka')
 source=("git+https://git.proxmox.com/git/pve-cluster.git")

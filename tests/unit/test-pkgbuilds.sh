@@ -32,10 +32,12 @@ while IFS= read -r -d '' pkg; do
   grep -q '^pkgname=archmox-' "${pkg}" || \
     fail "${name}: pkgname must be prefixed with archmox-"
 
-  # Source must come from a real upstream git repo (metapackages may omit source)
+  # Source must come from a real upstream git repo, or an immutable CPAN
+  # distribution tarball for vendored Perl leaf modules (metapackages may
+  # omit source entirely)
   if grep -q '^source=' "${pkg}"; then
-    grep -q 'source=("git+' "${pkg}" || \
-      fail "${name}: source must use git+ upstream URL"
+    grep -qE 'source=\("git\+|source=\("https://cpan\.metacpan\.org/' "${pkg}" || \
+      fail "${name}: source must use git+ upstream URL or CPAN dist tarball"
     grep -q "archmox/archive" "${pkg}" && \
       fail "${name}: still references nonexistent monorepo tarball"
   fi

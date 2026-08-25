@@ -10,9 +10,9 @@ license=('AGPL3')
 depends=('archmox-pve-common' 'archmox-pve-access-control' 'archmox-pve-cluster'
          'perl' 'perl-json' 'perl-libwww' 'perl-io-socket-ssl'
          'perl-net-ip' 'perl-net-dns' 'perl-xml-libxml'
-         'perl-filesys-df' 'perl-string-shellquote' 'perl-linux-inotify2'
-         'iptables-nft' 'ipset' 'conntrack-tools' 'xtables-addons'
-         'nftables' 'arptables' 'ebtables')
+         'perl-filesys-df' 'perl-string-shellquote' 'archmox-perl-linux-inotify2'
+         'iptables-nft' 'ipset' 'conntrack-tools'
+         'nftables')
 makedepends=('make' 'gcc' 'perl-module-build')
 source=("git+https://git.proxmox.com/git/pve-firewall.git")
 # Rolling port: track upstream master until pinned refs are validated.
