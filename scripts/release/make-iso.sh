@@ -124,33 +124,9 @@ include_packages() {
   pkg_count="$(find "${repo_dir}" -maxdepth 1 -name '*.pkg.tar.zst' -type f | wc -l)"
   info "Found ${pkg_count} packages to include"
 
-  if [[ "${pkg_count}" -gt 0 ]]; then
-    # Create a local repo inside the archiso airootfs
-    local airootfs_repo="${BUILDDIR}/archlive/airootfs/opt/archmox-repo"
-    mkdir -p "${airootfs_repo}"
-
-    cp "${repo_dir}"/*.pkg.tar.zst "${airootfs_repo}/"
-    if compgen -G "${repo_dir}/*.sig" >/dev/null; then
-      cp "${repo_dir}"/*.sig "${airootfs_repo}/" || true
-    fi
-
-    # Create repo database for the offline repo
-    repo-add "${airootfs_repo}/archmox.db.tar.zst" \
-      "${airootfs_repo}"/*.pkg.tar.zst >/dev/null
-
-    # Add the local repo to the archiso pacman.conf
-    cat >> "${pacman_conf}" <<EOF
-
-[archmox]
-SigLevel = Optional TrustAll
-Server = file:///opt/archmox-repo
-EOF
-  fi
-
-  # Ensure essential archmox metapackages are installed in the live env,
-  # but only request the ones that were actually built and only when we
-  # have a local repo to serve them from; otherwise mkarchiso aborts on
-  # unresolvable packages.
+  # Only request metapackages that were actually built; the local repo is
+  # wired into the ISO pacman.conf solely when there is something to serve
+  # from it, otherwise pacstrap aborts on an unsyncable/empty database.
   local wanted=(
     archmox-proxmox-ve
     archmox-pve-manager
@@ -173,11 +149,37 @@ EOF
     fi
   done
 
-  if [[ ${#built[@]} -gt 0 && -f "${pkglist_file}" ]]; then
-    printf '%s\n' "${built[@]}" >> "${pkglist_file}"
-    # De-duplicate while preserving order
-    awk 'NF && !seen[$0]++' "${pkglist_file}" > "${pkglist_file}.tmp" \
-      && mv "${pkglist_file}.tmp" "${pkglist_file}"
+  if [[ ${#built[@]} -gt 0 ]]; then
+    # Create a local repo inside the archiso airootfs
+    local airootfs_repo="${BUILDDIR}/archlive/airootfs/opt/archmox-repo"
+    mkdir -p "${airootfs_repo}"
+
+    cp "${repo_dir}"/*.pkg.tar.zst "${airootfs_repo}/"
+    if compgen -G "${repo_dir}/*.sig" >/dev/null; then
+      cp "${repo_dir}"/*.sig "${airootfs_repo}/" || true
+    fi
+
+    # Create repo database for the offline repo. Pacman's file:// transport
+    # fetches '<repo>.db' verbatim, so ship an uncompressed copy alongside
+    # the repo-add tarball.
+    repo-add "${airootfs_repo}/archmox.db.tar.zst" \
+      "${airootfs_repo}"/*.pkg.tar.zst >/dev/null
+    cp -f "${airootfs_repo}/archmox.db.tar.zst" "${airootfs_repo}/archmox.db"
+
+    # Add the local repo to the archiso pacman.conf
+    cat >> "${pacman_conf}" <<EOF
+
+[archmox]
+SigLevel = Optional TrustAll
+Server = file:///opt/archmox-repo
+EOF
+
+    if [[ -f "${pkglist_file}" ]]; then
+      printf '%s\n' "${built[@]}" >> "${pkglist_file}"
+      # De-duplicate while preserving order
+      awk 'NF && !seen[$0]++' "${pkglist_file}" > "${pkglist_file}.tmp" \
+        && mv "${pkglist_file}.tmp" "${pkglist_file}"
+    fi
   else
     warn "No Archmox packages available; building a plain live ISO."
   fi
